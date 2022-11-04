@@ -40,10 +40,10 @@ WHERE
 -- Add Census Tract ID Based Upon Polygon Location
 
 ALTER TABLE la100es.panel_data
-ADD COLUMN "CensusTract" VARCHAR;
+ADD COLUMN "census_tract" VARCHAR;
 
 UPDATE la100es.panel_data AS A
-SET "CensusTract" = B."geoid"
+SET "census_tract" = B."geoid"
 FROM census.ca_tr_geom_2019 AS B
 WHERE ST_INTERSECTS(A."centroid", B."geom");
 
@@ -172,7 +172,7 @@ ALTER TABLE la100es.panel_data_permits
 RENAME COLUMN "BuildingAreaSqFt" TO "building_sqft";
 
 ALTER TABLE la100es.panel_data_permits
-RENAME COLUMN "CensusTract" TO "census_tract";
+RENAME COLUMN "census_tract" TO "census_tract";
 
 -- Cast fields to appropriate types
 
