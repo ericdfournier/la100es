@@ -1,0 +1,8 @@
+# Ignore data directory
+/data
+
+# Ignore mac os filesystem hidden files
+.DS_Store
+
+# Ignore ipython notebook data
+.ipynb_checkpoints
