@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter, StrMethodFormatter
 import seaborn as sns
 import os
+import sys
 from matplotlib import animation
 
 from itertools import product
@@ -18,130 +19,31 @@ from statsmodels.distributions.empirical_distribution import ECDF
 from numpy.random import MT19937
 from numpy.random import RandomState, SeedSequence
 
-#%% Extract Database Connection Parameters from Environment
-
-host = os.getenv('PG_HOST')
-user = os.getenv('PG_USER')
-password = os.getenv('PG_PASS')
-port = os.getenv('PG_PORT')
-db = os.getenv('PG_DB')
+sys.path.append('/Users/edf/repos/la100es/pu/')
+import pkg.io as io
+import pkg.plot as plot
 
 #%% Set Output Figures Directory
 
 figure_dir = '/Users/edf/repos/la100es/figures/'
 
-#%% Establish DB Connection
+#%% Import SF Data and Context Layers
 
-db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db
-db_con = sql.create_engine(db_con_string)
+sf_buildings = io.ImportSingleFamilyBuildingPermitData()
+ces4 = io.ImportCalEnviroScreenData()
+ladwp = io.ImportLadwpServiceTerritoryData()
 
-#%% Read SF Input Table from DB
-
-sf_buildings_sql = '''SELECT    "ztrax_rowid",
-                                "apn",
-                                "buildings",
-                                "lot_sqft",
-                                "county_landuse_description",
-                                "occupancy_status_stnd_code",
-                                "year_built"::text,
-                                "units",
-                                "bedrooms",
-                                "bathrooms",
-                                "heating_system_stnd_code",
-                                "ac_system_stnd_code",
-                                "building_sqft",
-                                "centroid",
-                                "census_tract",
-                                "ain",
-                                "usetype",
-                                "usedescription",
-                                "roll_year"::text,
-                                "roll_landvalue",
-                                "roll_landbaseyear"::text,
-                                "roll_impvalue",
-                                "roll_impbaseyear"::text,
-                                "city",
-                                "permit_type",
-                                "permit_sub_type",
-                                "permit_description",
-                                "permit_issue_date"::text,
-                                "panel_upgrade"
-                    FROM        la100es.panel_data_permits
-                    WHERE       "usetype" = 'Residential' AND
-                                "usedescription" = 'Single' AND
-                                "county_landuse_description" NOT IN ('SINGLE RESIDENTIAL - CONDOMINIUM', 'SINGLE FAMILY RESIDENTIAL - VACANT');'''
-
-sf_buildings = pd.read_sql(sf_buildings_sql, db_con)
-
-sf_buildings['census_tract'] = pd.to_numeric(sf_buildings['census_tract'], errors = 'coerce')
-
-sf_buildings.loc[sf_buildings['year_built'] == '0001-01-01 BC', 'year_built'] = ''
-sf_buildings.loc[sf_buildings['roll_year'] == '0001-01-01 BC', 'roll_year'] = ''
-sf_buildings.loc[sf_buildings['roll_landbaseyear'] == '0001-01-01 BC', 'roll_landbaseyear'] = ''
-sf_buildings.loc[sf_buildings['roll_impbaseyear'] == '0001-01-01 BC', 'roll_impbaseyear'] = ''
-sf_buildings.loc[sf_buildings['permit_issue_date'] == '0001-01-01 BC', 'permit_issue_date'] = ''
-
-sf_buildings['year_built'] = pd.to_datetime(sf_buildings['year_built'], format = '%Y-%m-%d')
-sf_buildings['roll_year'] = pd.to_datetime(sf_buildings['roll_year'], format = '%Y-%m-%d')
-sf_buildings['roll_landbaseyear'] = pd.to_datetime(sf_buildings['roll_landbaseyear'], format = '%Y-%m-%d')
-sf_buildings['roll_impbaseyear'] = pd.to_datetime(sf_buildings['roll_impbaseyear'], format = '%Y-%m-%d')
-sf_buildings['permit_issue_date'] = pd.to_datetime(sf_buildings['permit_issue_date'], format = '%Y-%m-%d')
-
-#%% Read Census Tract Level DAC Data
-
-ces4_sql = '''SELECT * FROM ladwp.ces4'''
-ces4 = gpd.read_postgis(ces4_sql, db_con, geom_col = 'geom')
-cols = [x.lower() for x in ces4.columns]
-ces4.columns = cols
-
-#%% Read LADWP Boundary 
-
-ladwp_sql = '''SELECT * FROM ladwp.service_territory'''
-ladwp = gpd.read_postgis(ladwp_sql, con = db_con, geom_col = 'geom')
-
-#%% Merge Parcels with CES Data
+#%% Merge Parcels with CES Data and Assign DAC Status
 
 sf_buildings_ces = pd.merge(sf_buildings, ces4[['tract', 'ciscorep']], left_on = 'census_tract', right_on = 'tract')
 sf_buildings_ces.set_index('tract', inplace = True)
-
-#%% Assign DAC Status
-
 sf_buildings_ces['dac_status'] = 'Non-DAC'
 ind = sf_buildings_ces['ciscorep'] >= 75.0
 sf_buildings_ces.loc[ind, 'dac_status'] = 'DAC'
 
-#%% Plot the Number of SF Buildings by Tract
+#%% Plot Single Family Building Counts by Tract
 
-fig, ax = plt.subplots(1, 1, figsize = (10,10))
-
-sf_count = sf_buildings.groupby('census_tract')['apn'].agg('count')
-sf_count_df = pd.merge(ces4.loc[:,['geom','tract','ciscorep']], sf_count, left_on = 'tract', right_on = 'census_tract')
-sf_count_df.rename(columns = {'geom':'geometry'}, inplace = True)
-sf_count_gdf = gpd.GeoDataFrame(sf_count_df)
-sf_count_gdf.plot(column = 'apn', 
-    ax = ax, 
-    cmap = 'bone_r', 
-    scheme = 'naturalbreaks',
-    legend = True,
-    legend_kwds = {'title': 'Single Family Homes\n[Counts]\n',
-                    'loc': 'lower left'})
-
-dac_ind = ces4['ciscorep'] >= 75.0
-non_dac_ind = ces4['ciscorep'] < 75.0
-
-ces4.loc[~(dac_ind | non_dac_ind)].boundary.plot(ax = ax, edgecolor = 'k', linewidth = 0.5)
-ces4.loc[dac_ind].boundary.plot(ax = ax, color = 'tab:orange', linewidth = 0.5)
-ces4.loc[non_dac_ind].boundary.plot(ax = ax, color = 'tab:blue', linewidth = 0.5)
-ladwp.boundary.plot(ax = ax, edgecolor = 'black', linewidth = 1.5)
-
-ax.set_ylim((-480000,-405000))
-ax.set_xlim((120000,170000))
-ax.set_axis_off()
-
-fig.patch.set_facecolor('white')
-fig.tight_layout()
-
-fig.savefig(figure_dir + 'total_number_of_single_family_homes_by_tract_map.png', bbox_inches = 'tight', dpi = 300)
+plot.SingleFamilyCountsByTract(sf_buildings, ces4, ladwp, figure_dir)
 
 #%% Implement Initial Decision Tree
 
