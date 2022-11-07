@@ -19,9 +19,10 @@ from statsmodels.distributions.empirical_distribution import ECDF
 from numpy.random import MT19937
 from numpy.random import RandomState, SeedSequence
 
-sys.path.append('/Users/edf/repos/la100es/pu/')
+os.chdir('/Users/edf/repos/la100es/pu/')
 import pkg.io as io
 import pkg.plot as plot
+import pkg.utils as utils
 
 #%% Set Output Figures Directory
 
@@ -32,14 +33,7 @@ figure_dir = '/Users/edf/repos/la100es/figures/'
 sf_buildings = io.ImportSingleFamilyBuildingPermitData()
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
-
-#%% Merge Parcels with CES Data and Assign DAC Status
-
-sf_buildings_ces = pd.merge(sf_buildings, ces4[['tract', 'ciscorep']], left_on = 'census_tract', right_on = 'tract')
-sf_buildings_ces.set_index('tract', inplace = True)
-sf_buildings_ces['dac_status'] = 'Non-DAC'
-ind = sf_buildings_ces['ciscorep'] >= 75.0
-sf_buildings_ces.loc[ind, 'dac_status'] = 'DAC'
+sf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(sf_buildings, ces4))
 
 #%% Plot Single Family Building Counts by Tract
 
