@@ -5,8 +5,6 @@ import geopandas as gpd
 import numpy as np
 from itertools import product
 from statsmodels.distributions.empirical_distribution import ECDF
-from numpy.random import MT19937
-from numpy.random import RandomState, SeedSequence
 
 #%% Implement Decision Tree Function
 
@@ -163,7 +161,18 @@ def InferExistingFromModel(sf_buildings_ces):
     the empirical ECDF which relates the age of the home to the probability
     of permitted work by DAC status.'''
 
-    rs = RandomState(MT19937(SeedSequence(987654321)))
+    nan_ind = ~sf_buildings_ces['year_built'].isna()
+    dac_ind = sf_buildings_ces['dac_status'] == 'DAC'
+    dac_permit_sum = dac_ind.sum()
+    non_dac_ind = sf_buildings_ces['dac_status'] == 'Non-DAC'
+    non_dac_permit_sum = non_dac_ind.sum()
+
+    dac_ages = pd.DataFrame(2022-sf_buildings_ces.loc[(nan_ind & dac_ind),'year_built'].dt.year)
+    non_dac_ages = pd.DataFrame(2022-sf_buildings_ces.loc[(nan_ind & non_dac_ind),'year_built'].dt.year)
+
+    rs = 12345678
+    np.random.seed(rs)
+
     dac_ecdf = ECDF(dac_ages['year_built'])
 
     dac_odds_ratio = non_dac_permit_sum / dac_permit_sum
