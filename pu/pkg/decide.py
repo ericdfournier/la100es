@@ -89,20 +89,21 @@ def AssignExistingFromPermit(sf_buildings_ces):
 
     # Find Locations with Upgrades of Different Size
 
-    pu_100 = sf_buildings_ces['permit_description'].str.contains(' 100')
-    pu_125 = sf_buildings_ces['permit_description'].str.contains(' 125')
-    pu_150 = sf_buildings_ces['permit_description'].str.contains(' 150')
-    pu_200 = sf_buildings_ces['permit_description'].str.contains(' 200')
-    pu_225 = sf_buildings_ces['permit_description'].str.contains(' 225')
-    pu_300 = sf_buildings_ces['permit_description'].str.contains(' 300')
-    pu_400 = sf_buildings_ces['permit_description'].str.contains(' 400')
-    pu_600 = sf_buildings_ces['permit_description'].str.contains(' 600')
+    pu_100 = (sf_buildings_ces['permit_description'].str.contains(' 100')) | (sf_buildings_ces['permit_description'].str.startswith('100'))
+    pu_125 = (sf_buildings_ces['permit_description'].str.contains(' 125')) | (sf_buildings_ces['permit_description'].str.startswith('120'))
+    pu_150 = (sf_buildings_ces['permit_description'].str.contains(' 150')) | (sf_buildings_ces['permit_description'].str.startswith('150'))
+    pu_200 = (sf_buildings_ces['permit_description'].str.contains(' 200')) | (sf_buildings_ces['permit_description'].str.startswith('200'))
+    pu_225 = (sf_buildings_ces['permit_description'].str.contains(' 225')) | (sf_buildings_ces['permit_description'].str.startswith('225'))
+    pu_300 = (sf_buildings_ces['permit_description'].str.contains(' 300')) | (sf_buildings_ces['permit_description'].str.startswith('300'))
+    pu_400 = (sf_buildings_ces['permit_description'].str.contains(' 400')) | (sf_buildings_ces['permit_description'].str.startswith('400'))
+    pu_600 = (sf_buildings_ces['permit_description'].str.contains(' 600')) | (sf_buildings_ces['permit_description'].str.startswith('600'))
 
-    pu_solar = sf_buildings_ces['permit_description'].str.contains('solar', case = False)
-    pu_ev = sf_buildings_ces['permit_description'].str.contains('ev', case = False)
-    pu_ac = sf_buildings_ces['permit_description'].str.contains('ac', case = False)
+    pu_solar = (sf_buildings_ces['permit_description'].str.contains('solar', case = False)) | (sf_buildings_ces['permit_description'].str.contains('pv', case = False))  | (sf_buildings_ces['permit_description'].str.contains('photovoltaic', case = False))
+    pu_ev = (sf_buildings_ces['permit_description'].str.contains('ev', case = False)) | (sf_buildings_ces['permit_description'].str.contains('charger', case = False))
+    pu_ac = (sf_buildings_ces['permit_description'].str.contains('ac', case = False)) | (sf_buildings_ces['permit_description'].str.contains("a/c", case = False))
 
-    pu_other = ~(pu_100 | pu_125 | pu_150 | pu_200 | pu_225 | pu_300 | pu_400 | pu_600 | pu_solar | pu_ev | pu_ac)
+    pu_any = sf_buildings_ces['panel_related_permit'] == True
+    pu_other = pu_any & ~(pu_100 | pu_125 | pu_150 | pu_200 | pu_225 | pu_300 | pu_400 | pu_600)
 
     # Peform Filtering Assignment
 
@@ -129,11 +130,8 @@ def AssignExistingFromPermit(sf_buildings_ces):
         proposed.loc[change_ind] = k
         sf_buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed
 
-    other_ind = (pu_solar | pu_other | pu_ev | pu_ac)
-    other_ind[other_ind.isna()] = False
-    apns = sf_buildings_ces.loc[other_ind, 'apn']
-    as_built_ind = sf_buildings_ces.index.isin(apns)
-    proposed = sf_buildings_ces.loc[as_built_ind, 'panel_size_as_built']
+    pu_other[pu_other.isna()] = False
+    proposed = sf_buildings_ces.loc[pu_other, 'panel_size_as_built']
 
     for p in proposed.iteritems():
         c = None

@@ -6,10 +6,12 @@ import pkg.io as io
 import pkg.plot as plot
 import pkg.utils as utils
 import pkg.decide as decide
+import datetime
 
 #%% Set Output Figures Directory
 
-figure_dir = '/Users/edf/repos/la100es/figures/'
+figure_dir = '/Users/edf/repos/la100es/figs/'
+output_dir = '/Users/edf/repos/la100es/data/outputs/'
 
 #%% Import SF Data and Context Layers
 
@@ -52,3 +54,10 @@ plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
 utils.AsBuiltPanelRatingsDiagnostics(sf_buildings_ces)
 utils.PanelUpgradeDiagnostics(sf_buildings_ces)
 utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces)
+
+#%% Process and Output to File
+
+final = utils.SortColumns(sf_buildings_ces)
+ts = str(datetime.datetime.now())
+final.to_csv(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.csv')
+final.to_json(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.geojson')

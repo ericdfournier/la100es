@@ -185,4 +185,50 @@ def ExistingPanelRatingsDiagnostics(sf_buildings_ces):
     print('>=200 Amps: {:.2f}%'.format(non_dac_sample_stats[sufficient].sum() / non_dac_sample.shape[0] * 100))
 
     return
-    
+
+#%% Function to re-order columns of final dataset for export output
+
+def SortColumns(sf_buildings_ces):
+    '''Reorder columns in final dataframe in preparation for final
+    output dataset export'''
+
+    cols = ['apn',
+            'ain',
+            'ztrax_rowid',
+            'city',
+            'census_tract',
+            'ciscorep',
+            'dac_status',
+            'buildings',
+            'lot_sqft',
+            'year_built',
+            'building_sqft',
+            'units',
+            'bedrooms',
+            'bathrooms',
+            'county_landuse_description',
+            'occupancy_status_stnd_code',
+            'usetype',
+            'usedescription',
+            'heating_system_stnd_code',
+            'ac_system_stnd_code',
+            'roll_year',
+            'roll_landvalue',
+            'roll_landbaseyear',
+            'roll_impvalue',
+            'roll_impbaseyear',
+            'permit_type',
+            'permit_sub_type',
+            'permit_description',
+            'panel_related_permit',
+            'permit_issue_date',
+            'permitted_panel_upgrade',
+            'panel_size_as_built',
+            'inferred_panel_upgrade',
+            'upgrade_time_delta',
+            'panel_size_existing',
+            'centroid']
+
+    sf_buildings_ces = sf_buildings_ces[cols]
+
+    return sf_buildings_ces

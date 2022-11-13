@@ -51,7 +51,7 @@ def ImportSingleFamilyBuildingPermitData():
                                     "permit_sub_type",
                                     "permit_description",
                                     "permit_issue_date"::text,
-                                    "panel_upgrade"
+                                    "panel_related_permit"
                         FROM        la100es.panel_data_permits
                         WHERE       "usetype" = 'Residential' AND
                                     "usedescription" = 'Single' AND

@@ -109,7 +109,7 @@ def AsBuiltPanelRatingsHist(sf_buildings_ces, ces4, ladwp, figure_dir):
         data = dac_sample, 
         color = 'tab:orange', 
         ax = ax[0], 
-        bins = 50, 
+        bins = 60, 
         legend = True, 
         label = 'DAC', 
         cbar = True, 
@@ -193,7 +193,7 @@ def PermitTimeSeries(sf_buildings_ces, figure_dir):
 
     # Generate Time Series of Permits by DAC Status
 
-    upgrade_ind = sf_buildings_ces['panel_upgrade'] == True
+    upgrade_ind = sf_buildings_ces['panel_related_permit'] == True
     permit_ts = sf_buildings_ces.loc[upgrade_ind].groupby([pd.Grouper(key='permit_issue_date', axis=0, freq='1Y'), 'dac_status'])['apn'].agg('count')
     permit_ts = permit_ts.reset_index()
     permit_ts = permit_ts.rename(columns = {'apn': 'permit_count'})
@@ -294,7 +294,7 @@ def PermitCountsMap(sf_buildings_ces, ces4, ladwp, figure_dir):
     ces4.loc[dac_ind].boundary.plot(ax = ax, color = 'tab:orange', linewidth = 0.5)
     ces4.loc[non_dac_ind].boundary.plot(ax = ax, color = 'tab:blue', linewidth = 0.5)
     ladwp.boundary.plot(ax = ax, edgecolor = 'black', linewidth = 1.5)
-
+    
     permits_per_tract_ces.plot(ax = ax,
         column = 'apn',
         k = 7,
@@ -304,7 +304,7 @@ def PermitCountsMap(sf_buildings_ces, ces4, ladwp, figure_dir):
         legend = True,
         legend_kwds = {'title': 'Single Family Homes\nPermitted Panel Upgrades\n[Counts]\n',
                         'loc': 'lower left',
-                        "labels": ["1-100", "100-250", "250-500", "500-750","750-1000", "1000-1500", "1500-2000"]})
+                        "labels": ["1-100", "100-250", "250-500", "500-750","750-1000", "1000-1500", "1500-2000","2000-3160"]})
 
     ax.set_ylim((-480000,-405000))
     ax.set_xlim((120000,170000))
@@ -540,13 +540,13 @@ def ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir):
     panel_stats_ces_geo.plot(column = 'mean_sf_panel_size_existing', 
         ax = ax, 
         scheme='user_defined',
-        classification_kwds = {'bins' : [30,60,100,125,150,200,300,400]},
+        classification_kwds = {'bins' : [30,60,100,125,150,200,300]},
         k = 10,
         cmap='bone_r',
         legend = True,
         legend_kwds = {'title': 'Single Family Homes\nAverage Panel Size Rating\nExisting [Amps]',
                         'loc': 'lower left',
-                        "labels": ["","30-60", "60-100", "100-125", "125-150", "150-200", "200-300", "300-400"]})
+                        "labels": ["","30-60", "60-100", "100-125", "125-150", "150-200", "200-300"]})
 
     ax.set_ylim((-480000,-405000))
     ax.set_xlim((120000,170000))

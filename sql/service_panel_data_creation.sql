@@ -90,29 +90,32 @@ SELECT 	A.*,
 	 	B."ISSUE_DATE" AS "permit_issue_date"
 INTO la100es.panel_data_permits
 FROM la100es.panel_data AS A 
-INNER JOIN la100es.la_city_building_permits AS B
+LEFT JOIN la100es.la_city_building_permits AS B
 ON A."ain" = B."APN";
 
 -- Determine where panel upgrades occurred based upon permit description
 
 ALTER TABLE la100es.panel_data_permits
-ADD COLUMN panel_upgrade BOOL;
+ADD COLUMN panel_related_permit BOOL;
 
 UPDATE la100es.panel_data_permits
-SET panel_upgrade = FALSE;
+SET panel_related_permit = FALSE;
 
 UPDATE la100es.panel_data_permits
-SET panel_upgrade = TRUE
+SET panel_related_permit = TRUE
 WHERE "permit_description" ~* 'UPGRADE' OR
 	  "permit_description" ~* 'MAIN' OR
 	  "permit_description" ~* 'PANEL' OR
 	  "permit_description" ~* 'SERVICE' OR 
 	  "permit_description" ~* 'AMP' OR 
 	  "permit_description" ~* 'SOLAR' OR
+	  "permit_description" ~* 'PV' OR
+	  "permit_description" ~* 'PHOTOVOLTAIC' OR
 	  "permit_description" ~* 'EV CHARGER' OR
-	  "permit_description" ~* 'AC' OR 
+	  "permit_description" ~* 'AC ' OR
+	  "permit_description" ~* 'A/C' OR 
 	  "permit_description" ~* 'AIR CONDITIONER' OR
-	  "premit_description" ~* 'HEAT PUMP';
+	  "permit_description" ~* 'HEAT PUMP';
 	 
 -- Add physical geography fields
 	 
@@ -170,9 +173,6 @@ RENAME COLUMN "AirConditioningTypeorSystemStndCode" TO "ac_system_stnd_code";
 
 ALTER TABLE la100es.panel_data_permits
 RENAME COLUMN "BuildingAreaSqFt" TO "building_sqft";
-
-ALTER TABLE la100es.panel_data_permits
-RENAME COLUMN "census_tract" TO "census_tract";
 
 -- Cast fields to appropriate types
 
