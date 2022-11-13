@@ -37,7 +37,7 @@ index: float64 - serial numerical primary key - Derived
 apn: string - assessor parcel number - Primary, LA County Assessor
 ain: string - assessor information number - Primary, LA County Assessor
 ztrax_rowid: string - zillow ztrax database row id number - Primary, Zilllow ZTRAX
-city: String string - city name - Primary, LA County Assessor
+city: string - city name - Primary, LA County Assessor
 census_tract: int64 - census tract geoid - Primary, CES-4.0
 ciscorep: float64 - census tract cal-enviroscreen 4.0 composite index percentile score - Primary, CES-4.0
 dac_status: string - disadvantaged community status based upon >=75th percentile composite score thredhold - Derived
@@ -54,7 +54,7 @@ usetype: string - property usetype category - Primary, LA County Assessor
 usedescription: string - property usetype description - Primary, LA County Assessor
 heating_system_stnd_code: string - heating system standard code - Primary, Zilllow ZTRAX
 ac_system_stnd_code: string - air conditioning system standard code - Primary, Zilllow ZTRAX
-roll_year: String datetime64 - assessor tax roll year - Primary, LA County Assessor
+roll_year: datetime64 - assessor tax roll year - Primary, LA County Assessor
 roll_landvalue: float64 - assessor tax roll land value in dollars - Primary, LA County Assessor
 roll_landbaseyear: datetime64 - assessor tax roll land base year - Primary, LA County Assessor
 roll_impvalue: float64 - assessor tax roll improvement value in dollars - Primary, LA County Assessor
