@@ -175,6 +175,8 @@ def AssignExistingFromPermit(buildings_ces):
             upgrade = 200
         proposed.loc[p[0]] = upgrade
 
+    #TODO: Need to modify this for the MF context and consider scaling per-unit...
+
     buildings_ces.loc[proposed.index, 'panel_size_existing'] = proposed
     upgrade_ind = buildings_ces['panel_size_existing'] > buildings_ces['panel_size_as_built']
     buildings_ces.loc[upgrade_ind, 'permitted_panel_upgrade'] = True
