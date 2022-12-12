@@ -114,7 +114,7 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
 
 #%% Assign Existing Panel Size Based Upon Permit Description
 
-def AssignExistingFromPermit(buildings_ces):
+def AssignExistingFromPermit(buildings_ces, sector):
     '''Use work description from permit data to assign existing panel rating'''
 
     # Find Locations with Upgrades of Different Size
@@ -158,24 +158,31 @@ def AssignExistingFromPermit(buildings_ces):
         proposed = buildings_ces.loc[v,'panel_size_as_built']
         change_ind = proposed < k
         proposed.loc[change_ind] = k
-        buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed
 
-    pu_other[pu_other.isna()] = False
-    proposed = buildings_ces.loc[pu_other, 'panel_size_as_built']
+        if sector == 'single_family':
 
-    for p in proposed.iteritems():
-        c = None
-        if np.isnan(p[1]):
-            c = 100.0
-        else:
-            c = p[1]
-        k = upgrade_scale.index(c)
-        upgrade = upgrade_scale[k+1]
-        if upgrade < 200:
-            upgrade = 200
-        proposed.loc[p[0]] = upgrade
+            buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed
+        
+        elif sector == 'multi_family':
 
-    #TODO: Need to modify this for the MF context and consider scaling per-unit...
+            buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed / buildings_ces.loc[proposed.index,'units']
+
+    if sector == 'single_family':
+
+        pu_other[pu_other.isna()] = False
+        proposed = buildings_ces.loc[pu_other, 'panel_size_as_built']
+
+        for p in proposed.iteritems():
+            c = None
+            if np.isnan(p[1]):
+                c = 100.0
+            else:
+                c = p[1]
+            k = upgrade_scale.index(c)
+            upgrade = upgrade_scale[k+1]
+            if upgrade < 200:
+                upgrade = 200
+            proposed.loc[p[0]] = upgrade
 
     buildings_ces.loc[proposed.index, 'panel_size_existing'] = proposed
     upgrade_ind = buildings_ces['panel_size_existing'] > buildings_ces['panel_size_as_built']
@@ -236,7 +243,13 @@ def InferExistingFromModel(buildings_ces):
 
     # Loop Through and Assess Upgrades for DAC and Non-DAC cohorts
 
-    upgrade_scale = [ 30., 60., 100., 125., 150., 200., 225., 300., 400., 600., 800.0, 1000.0]
+    if sector == 'single_family':
+        
+        upgrade_scale = [ 30., 60., 100., 125., 150., 200., 225., 300., 400., 600., 800.0, 1000.0]
+    
+    elif sector == 'multi_family':
+
+        upgrade_scale = [ 30., 60., 100., 200., 300., 400., 600.]
 
     buildings_ces['inferred_panel_upgrade'] = False
 

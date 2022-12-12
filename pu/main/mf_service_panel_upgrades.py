@@ -25,10 +25,14 @@ buildings_ces = utils.ComputeAverageUnitSize(buildings_ces)
 #%% Implement Initial Decision Tree
 
 buildings_ces = decide.AssignAsBuiltFromDecisionTree(buildings_ces, sector)
+buildings_ces = decide.AssignExistingFromPermit(buildings_ces, sector)
+buildings_ces = decide.InferExistingFromModel(buildings_ces, sector)
+
+#TODO: Stopping point. Need to modify the inference routine to account
+# for the difference between the number of units and the upgrade scales between
+# the single_family and multi_family sectors...
 
 #%%
-buildings_ces = decide.AssignExistingFromPermit(buildings_ces)
-buildings_ces = decide.InferExistingFromModel(buildings_ces)
 buildings_ces = utils.UpgradeTimeDelta(buildings_ces)
 
 #%% Compute Statistics
