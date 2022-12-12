@@ -8,7 +8,7 @@ from statsmodels.distributions.empirical_distribution import ECDF
 
 #%% Implement Decision Tree Function
 
-def AssignAsBuiltFromDecisionTree(sf_buildings_ces):
+def AssignSFAsBuiltFromDecisionTree(sf_buildings_ces):
     '''Function to assign as-built panel size ratings to building 
     using a vintage year and square footage based decision tree'''
 
@@ -84,7 +84,7 @@ def AssignAsBuiltFromDecisionTree(sf_buildings_ces):
 
 #%% Assign Existing Panel Size Based Upon Permit Description
 
-def AssignExistingFromPermit(sf_buildings_ces):
+def AssignSFExistingFromPermit(sf_buildings_ces):
     '''Use work description from permit data to assign existing panel rating'''
 
     # Find Locations with Upgrades of Different Size
@@ -153,7 +153,7 @@ def AssignExistingFromPermit(sf_buildings_ces):
 
 #%% Infer Previous Year Upgrades Based Upon Permitted Data ECDF
 
-def InferExistingFromModel(sf_buildings_ces):
+def InferSFExistingFromModel(sf_buildings_ces):
     '''Function to infer the existing panel size for a buildng that did not
     receive any previous permitted work. The inference model is based upon
     the empirical ECDF which relates the age of the home to the probability

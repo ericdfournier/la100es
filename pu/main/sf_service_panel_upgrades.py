@@ -22,9 +22,9 @@ sf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(sf_buildings, ces4))
 
 #%% Implement Initial Decision Tree
 
-sf_buildings_ces = decide.AssignAsBuiltFromDecisionTree(sf_buildings_ces)
-sf_buildings_ces = decide.AssignExistingFromPermit(sf_buildings_ces)
-sf_buildings_ces = decide.InferExistingFromModel(sf_buildings_ces)
+sf_buildings_ces = decide.AssignSFAsBuiltFromDecisionTree(sf_buildings_ces)
+sf_buildings_ces = decide.AssignSFExistingFromPermit(sf_buildings_ces)
+sf_buildings_ces = decide.InferSFExistingFromModel(sf_buildings_ces)
 sf_buildings_ces = utils.UpgradeTimeDelta(sf_buildings_ces)
 
 #%% Compute Statistics
