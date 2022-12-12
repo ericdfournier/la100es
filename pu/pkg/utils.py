@@ -6,36 +6,48 @@ import numpy as np
 
 #%% Function Merge Parcels with CES Data
 
-def MergeCES(sf_buildings, ces4):
+def MergeCES(buildings, ces4):
     '''Function to merge the sf permit data set and the ces
     spatial dataset.'''
 
-    sf_buildings_ces = pd.merge(sf_buildings, ces4[['tract', 'ciscorep']], left_on = 'census_tract', right_on = 'tract')
-    sf_buildings_ces.set_index('tract', inplace = True)
+    buildings_ces = pd.merge(buildings, ces4[['tract', 'ciscorep']], left_on = 'census_tract', right_on = 'tract')
+    buildings_ces.set_index('tract', inplace = True)
 
-    return sf_buildings_ces
+    return buildings_ces
 
 #%% Function to Assign DAC Status
 
-def AssignDACStatus(sf_buildings_ces):
+def AssignDACStatus(buildings_ces):
     '''Function to assign DAC status based upon ces composite
     percentile score threshold.'''
 
-    sf_buildings_ces['dac_status'] = 'Non-DAC'
-    ind = sf_buildings_ces['ciscorep'] >= 75.0
-    sf_buildings_ces.loc[ind, 'dac_status'] = 'DAC'
+    buildings_ces['dac_status'] = 'Non-DAC'
+    ind = buildings_ces['ciscorep'] >= 75.0
+    buildings_ces.loc[ind, 'dac_status'] = 'DAC'
 
-    return sf_buildings_ces
+    return buildings_ces
+
+#%% Function to Compute Average Unit Square Footage
+
+def ComputeAverageUnitSize(buildings_ces):
+    '''Function to compute the average size of a multi-family
+    unit in square feet'''
+
+    buildings_ces['avg_unit_sqft'] = buildings_ces['building_sqft'] / buildings_ces['units']
+    err_ind = buildings_ces['avg_unit_sqft'] >= 30000 
+    buildings_ces.loc[err_ind,'avg_unit_sqft'] = buildings_ces['avg_unit_sqft'].median()
+
+    return buildings_ces
 
 #%% Print As-Built Diagnostic Stats
 
-def AsBuiltPanelRatingsDiagnostics(sf_buildings_ces):
+def AsBuiltPanelRatingsDiagnostics(buildings_ces):
 
-    dac_ind = sf_buildings_ces['dac_status'] == 'DAC'
-    non_dac_ind = sf_buildings_ces['dac_status'] == 'Non-DAC'
+    dac_ind = buildings_ces['dac_status'] == 'DAC'
+    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
 
-    dac_sample = sf_buildings_ces.loc[dac_ind,:]
-    non_dac_sample = sf_buildings_ces.loc[non_dac_ind,:]
+    dac_sample = buildings_ces.loc[dac_ind,:]
+    non_dac_sample = buildings_ces.loc[non_dac_ind,:]
 
     print('DAC As-Built Capacity Stats:')
     total = dac_sample['apn'].count()
@@ -55,34 +67,34 @@ def AsBuiltPanelRatingsDiagnostics(sf_buildings_ces):
 
 #%% Compute Time Difference Between Construction Date and Upgrade Date
 
-def UpgradeTimeDelta(sf_buildings_ces):
+def UpgradeTimeDelta(buildings_ces):
     '''Function to compute the length of time that elapsed from the building's 
     construction vintage year and the year of any permitted panel upgrade'''
 
-    upgrade_time_delta = pd.to_numeric(sf_buildings_ces.loc[:,'permit_issue_date'].dt.year - sf_buildings_ces.loc[:,'year_built'].dt.year)
+    upgrade_time_delta = pd.to_numeric(buildings_ces.loc[:,'permit_issue_date'].dt.year - buildings_ces.loc[:,'year_built'].dt.year)
     neg = upgrade_time_delta < 0
     upgrade_time_delta.loc[neg] = 0
-    sf_buildings_ces['upgrade_time_delta'] = np.nan
-    sf_buildings_ces.loc[upgrade_time_delta.index.get_level_values(0),'upgrade_time_delta'] = upgrade_time_delta.values
+    buildings_ces['upgrade_time_delta'] = np.nan
+    buildings_ces.loc[upgrade_time_delta.index.get_level_values(0),'upgrade_time_delta'] = upgrade_time_delta.values
 
-    return sf_buildings_ces
+    return buildings_ces
 
 # %% Generate Change Statistics 
 
-def ChangeStatistics(sf_buildings_ces, ces4):
+def ChangeStatistics(buildings_ces, ces4):
     '''Function to compute relevant statistics about the rate and location of changes
     in panel sizes from as-built to existing condition.'''
 
-    as_built_mean = sf_buildings_ces.groupby('census_tract')['panel_size_as_built'].agg(['mean'])
+    as_built_mean = buildings_ces.groupby('census_tract')['panel_size_as_built'].agg(['mean'])
     as_built_mean.columns = ['mean_sf_panel_size_as_built']
 
-    sf_property_count = sf_buildings_ces.groupby('census_tract')['lot_sqft'].agg(['count'])
+    sf_property_count = buildings_ces.groupby('census_tract')['lot_sqft'].agg(['count'])
     sf_property_count.columns = ['sf_homes_count']
 
-    existing_mean = sf_buildings_ces.groupby('census_tract')['panel_size_existing'].agg(['mean'])
+    existing_mean = buildings_ces.groupby('census_tract')['panel_size_existing'].agg(['mean'])
     existing_mean.columns = ['mean_sf_panel_size_existing']
 
-    upgrades_count = sf_buildings_ces.groupby('census_tract')['panel_upgrade'].agg('sum')
+    upgrades_count = buildings_ces.groupby('census_tract')['panel_upgrade'].agg('sum')
     upgrades_count.name = 'upgrade_count'
 
     panel_stats = pd.concat([as_built_mean, existing_mean, upgrades_count, sf_property_count], axis = 1)
@@ -105,15 +117,15 @@ def ChangeStatistics(sf_buildings_ces, ces4):
 
 #%% Print Upgrade Stats
 
-def PanelUpgradeDiagnostics(sf_buildings_ces):
+def PanelUpgradeDiagnostics(buildings_ces):
     '''Function to print diagnostic information about the number
     and location of permitted and inferred panel upgrades'''
 
-    dac_ind = sf_buildings_ces['dac_status'] == 'DAC'
-    non_dac_ind = sf_buildings_ces['dac_status'] == 'Non-DAC'
+    dac_ind = buildings_ces['dac_status'] == 'DAC'
+    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
 
-    dac_sample = sf_buildings_ces.loc[dac_ind,:]
-    non_dac_sample = sf_buildings_ces.loc[non_dac_ind,:]
+    dac_sample = buildings_ces.loc[dac_ind,:]
+    non_dac_sample = buildings_ces.loc[non_dac_ind,:]
 
     dac_permitted_panel_stats = dac_sample.groupby(['permitted_panel_upgrade'])['census_tract'].agg('count')
     non_dac_permitted_panel_stats = non_dac_sample.groupby(['permitted_panel_upgrade'])['census_tract'].agg('count')
@@ -153,15 +165,15 @@ def PanelUpgradeDiagnostics(sf_buildings_ces):
 
 #%% Print Capacity Stats
 
-def ExistingPanelRatingsDiagnostics(sf_buildings_ces):
+def ExistingPanelRatingsDiagnostics(buildings_ces):
     '''Function to print diagnostic information about the rated capacity of 
     existing panels'''
 
-    dac_ind = sf_buildings_ces['dac_status'] == 'DAC'
-    non_dac_ind = sf_buildings_ces['dac_status'] == 'Non-DAC'
+    dac_ind = buildings_ces['dac_status'] == 'DAC'
+    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
 
-    dac_sample = sf_buildings_ces.loc[dac_ind,:]
-    non_dac_sample = sf_buildings_ces.loc[non_dac_ind,:]
+    dac_sample = buildings_ces.loc[dac_ind,:]
+    non_dac_sample = buildings_ces.loc[non_dac_ind,:]
 
     dac_sample_stats = dac_sample.groupby(['panel_size_existing'])['census_tract'].agg('count')
     non_dac_sample_stats = non_dac_sample.groupby(['panel_size_existing'])['census_tract'].agg('count')
@@ -188,7 +200,7 @@ def ExistingPanelRatingsDiagnostics(sf_buildings_ces):
 
 #%% Function to re-order columns of final dataset for export output
 
-def SortColumns(sf_buildings_ces):
+def SortColumns(buildings_ces, sector):
     '''Reorder columns in final dataframe in preparation for final
     output dataset export'''
 
@@ -228,7 +240,11 @@ def SortColumns(sf_buildings_ces):
             'upgrade_time_delta',
             'panel_size_existing',
             'centroid']
+    
+    if sector == 'multi_family':
 
-    sf_buildings_ces = sf_buildings_ces[cols]
+        cols.insert(12, 'avg_unit_sqft')
 
-    return sf_buildings_ces
+    buildings_ces = buildings_ces[cols]
+
+    return buildings_ces

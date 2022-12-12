@@ -15,7 +15,7 @@ output_dir = '/Users/edf/repos/la100es/data/outputs/'
 
 #%% Import SF Data and Context Layers
 
-sf_buildings = io.ImportSingleFamilyBuildingPermitData()
+sf_buildings = io.ImportSFBuildingPermitData()
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
 sf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(sf_buildings, ces4))

@@ -8,22 +8,29 @@ from statsmodels.distributions.empirical_distribution import ECDF
 
 #%% Implement Decision Tree Function
 
-def AssignSFAsBuiltFromDecisionTree(sf_buildings_ces):
-    '''Function to assign as-built panel size ratings to building 
-    using a vintage year and square footage based decision tree'''
+def AssignAsBuiltFromDecisionTree(buildings_ces):
+    '''Function to assign as-built panel size ratings to residential
+    buildings using a vintage year and square footage based decision tree'''
 
-    vintage_pre_1978 = sf_buildings_ces['year_built'].dt.year < 1978
-    vintage_post_1978 = sf_buildings_ces['year_built'].dt.year >= 1978
+    if sector == 'single_family':
+        size_col = 'building_sqft'
+    elif sector == 'multi_family':
+        size_col = 'avg_unit_sqft'
+    else:
+        raise Exception("Sector must be either 'single_family' or 'multi_family'")
 
-    size_minus_1k = (sf_buildings_ces['building_sqft'] >= 0) & (sf_buildings_ces['building_sqft'] < 1000) 
-    size_1k_2k = (sf_buildings_ces['building_sqft'] >= 1000) & (sf_buildings_ces['building_sqft'] < 2000) 
-    size_2k_3k = (sf_buildings_ces['building_sqft'] >= 2000) & (sf_buildings_ces['building_sqft'] < 3000)
-    size_3k_4k = (sf_buildings_ces['building_sqft'] >= 3000) & (sf_buildings_ces['building_sqft'] < 4000)
-    size_4k_5k = (sf_buildings_ces['building_sqft'] >= 4000) & (sf_buildings_ces['building_sqft'] < 5000)
-    size_5k_8k = (sf_buildings_ces['building_sqft'] >= 5000) & (sf_buildings_ces['building_sqft'] < 8000)
-    size_8k_10k = (sf_buildings_ces['building_sqft'] >= 8000) & (sf_buildings_ces['building_sqft'] < 10000)
-    size_10k_20k = (sf_buildings_ces['building_sqft'] >= 10000) & (sf_buildings_ces['building_sqft'] < 20000)
-    size_20k_plus = (sf_buildings_ces['building_sqft'] >= 20000)
+    vintage_pre_1978 = buildings_ces['year_built'].dt.year < 1978
+    vintage_post_1978 = buildings_ces['year_built'].dt.year >= 1978
+
+    size_minus_1k = (buildings_ces[size_col] >= 0) & (buildings_ces[size_col] < 1000) 
+    size_1k_2k = (buildings_ces[size_col] >= 1000) & (buildings_ces[size_col] < 2000) 
+    size_2k_3k = (buildings_ces[size_col] >= 2000) & (buildings_ces[size_col] < 3000)
+    size_3k_4k = (buildings_ces[size_col] >= 3000) & (buildings_ces[size_col] < 4000)
+    size_4k_5k = (buildings_ces[size_col] >= 4000) & (buildings_ces[size_col] < 5000)
+    size_5k_8k = (buildings_ces[size_col] >= 5000) & (buildings_ces[size_col] < 8000)
+    size_8k_10k = (buildings_ces[size_col] >= 8000) & (buildings_ces[size_col] < 10000)
+    size_10k_20k = (buildings_ces[size_col] >= 10000) & (buildings_ces[size_col] < 20000)
+    size_20k_plus = (buildings_ces[size_col] >= 20000)
 
     vintage_names = ['vintage_pre_1978', 'vintage_post_1979']
 
@@ -72,42 +79,42 @@ def AssignSFAsBuiltFromDecisionTree(sf_buildings_ces):
                         600,    # ['vintage_post_1979', 'size_10k_20k']]
                         800]    # ['vintage_post_1979', 'size_20k_plus']]
 
-    sf_buildings_ces['panel_size_as_built'] = np.nan
+    buildings_ces['panel_size_as_built'] = np.nan
 
     for i in range(len(combs)):
 
-        sf_buildings_ces.loc[(combs[i][0] & combs[i][1]),'panel_size_as_built'] = panel_sizes[i]
+        buildings_ces.loc[(combs[i][0] & combs[i][1]),'panel_size_as_built'] = panel_sizes[i]
 
-    sf_buildings_ces.reset_index(inplace = True, drop = True)
+    buildings_ces.reset_index(inplace = True, drop = True)
 
-    return sf_buildings_ces
+    return buildings_ces
 
 #%% Assign Existing Panel Size Based Upon Permit Description
 
-def AssignSFExistingFromPermit(sf_buildings_ces):
+def AssignSFExistingFromPermit(buildings_ces):
     '''Use work description from permit data to assign existing panel rating'''
 
     # Find Locations with Upgrades of Different Size
 
-    pu_100 = (sf_buildings_ces['permit_description'].str.contains(' 100')) | (sf_buildings_ces['permit_description'].str.startswith('100'))
-    pu_125 = (sf_buildings_ces['permit_description'].str.contains(' 125')) | (sf_buildings_ces['permit_description'].str.startswith('120'))
-    pu_150 = (sf_buildings_ces['permit_description'].str.contains(' 150')) | (sf_buildings_ces['permit_description'].str.startswith('150'))
-    pu_200 = (sf_buildings_ces['permit_description'].str.contains(' 200')) | (sf_buildings_ces['permit_description'].str.startswith('200'))
-    pu_225 = (sf_buildings_ces['permit_description'].str.contains(' 225')) | (sf_buildings_ces['permit_description'].str.startswith('225'))
-    pu_300 = (sf_buildings_ces['permit_description'].str.contains(' 300')) | (sf_buildings_ces['permit_description'].str.startswith('300'))
-    pu_400 = (sf_buildings_ces['permit_description'].str.contains(' 400')) | (sf_buildings_ces['permit_description'].str.startswith('400'))
-    pu_600 = (sf_buildings_ces['permit_description'].str.contains(' 600')) | (sf_buildings_ces['permit_description'].str.startswith('600'))
+    pu_100 = (buildings_ces['permit_description'].str.contains(' 100')) | (buildings_ces['permit_description'].str.startswith('100'))
+    pu_125 = (buildings_ces['permit_description'].str.contains(' 125')) | (buildings_ces['permit_description'].str.startswith('120'))
+    pu_150 = (buildings_ces['permit_description'].str.contains(' 150')) | (buildings_ces['permit_description'].str.startswith('150'))
+    pu_200 = (buildings_ces['permit_description'].str.contains(' 200')) | (buildings_ces['permit_description'].str.startswith('200'))
+    pu_225 = (buildings_ces['permit_description'].str.contains(' 225')) | (buildings_ces['permit_description'].str.startswith('225'))
+    pu_300 = (buildings_ces['permit_description'].str.contains(' 300')) | (buildings_ces['permit_description'].str.startswith('300'))
+    pu_400 = (buildings_ces['permit_description'].str.contains(' 400')) | (buildings_ces['permit_description'].str.startswith('400'))
+    pu_600 = (buildings_ces['permit_description'].str.contains(' 600')) | (buildings_ces['permit_description'].str.startswith('600'))
 
-    pu_solar = (sf_buildings_ces['permit_description'].str.contains('solar', case = False)) | (sf_buildings_ces['permit_description'].str.contains('pv', case = False))  | (sf_buildings_ces['permit_description'].str.contains('photovoltaic', case = False))
-    pu_ev = (sf_buildings_ces['permit_description'].str.contains('ev', case = False)) | (sf_buildings_ces['permit_description'].str.contains('charger', case = False))
-    pu_ac = (sf_buildings_ces['permit_description'].str.contains('ac', case = False)) | (sf_buildings_ces['permit_description'].str.contains("a/c", case = False))
+    pu_solar = (buildings_ces['permit_description'].str.contains(' solar', case = False)) | (buildings_ces['permit_description'].str.contains(' pv', case = False))  | (buildings_ces['permit_description'].str.contains('photovoltaic', case = False))
+    pu_ev = (buildings_ces['permit_description'].str.contains(' ev', case = False)) | (buildings_ces['permit_description'].str.contains(' charger', case = False))
+    pu_ac = (buildings_ces['permit_description'].str.contains(' ac', case = False)) | (buildings_ces['permit_description'].str.contains(" a/c", case = False))
 
-    pu_any = sf_buildings_ces['panel_related_permit'] == True
+    pu_any = buildings_ces['panel_related_permit'] == True
     pu_other = pu_any & ~(pu_100 | pu_125 | pu_150 | pu_200 | pu_225 | pu_300 | pu_400 | pu_600)
 
     # Peform Filtering Assignment
 
-    sf_buildings_ces['panel_size_existing'] = sf_buildings_ces['panel_size_as_built']
+    buildings_ces['panel_size_existing'] = buildings_ces['panel_size_as_built']
 
     upgrade_scale = [ 30., 60., 100., 125., 150., 200., 225., 300., 400., 600., 800.0, 1000.0]
 
@@ -120,18 +127,18 @@ def AssignSFExistingFromPermit(sf_buildings_ces):
                 400.0:pu_400,
                 600.0:pu_600}
 
-    sf_buildings_ces['permitted_panel_upgrade'] = False
+    buildings_ces['permitted_panel_upgrade'] = False
 
     for k, v in ind_dict.items():
         
         v[v.isna()] = False
-        proposed = sf_buildings_ces.loc[v,'panel_size_as_built']
+        proposed = buildings_ces.loc[v,'panel_size_as_built']
         change_ind = proposed < k
         proposed.loc[change_ind] = k
-        sf_buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed
+        buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed
 
     pu_other[pu_other.isna()] = False
-    proposed = sf_buildings_ces.loc[pu_other, 'panel_size_as_built']
+    proposed = buildings_ces.loc[pu_other, 'panel_size_as_built']
 
     for p in proposed.iteritems():
         c = None
@@ -145,28 +152,28 @@ def AssignSFExistingFromPermit(sf_buildings_ces):
             upgrade = 200
         proposed.loc[p[0]] = upgrade
 
-    sf_buildings_ces.loc[proposed.index, 'panel_size_existing'] = proposed
-    upgrade_ind = sf_buildings_ces['panel_size_existing'] > sf_buildings_ces['panel_size_as_built']
-    sf_buildings_ces.loc[upgrade_ind, 'permitted_panel_upgrade'] = True
+    buildings_ces.loc[proposed.index, 'panel_size_existing'] = proposed
+    upgrade_ind = buildings_ces['panel_size_existing'] > buildings_ces['panel_size_as_built']
+    buildings_ces.loc[upgrade_ind, 'permitted_panel_upgrade'] = True
 
-    return sf_buildings_ces
+    return buildings_ces
 
 #%% Infer Previous Year Upgrades Based Upon Permitted Data ECDF
 
-def InferSFExistingFromModel(sf_buildings_ces):
+def InferSFExistingFromModel(buildings_ces):
     '''Function to infer the existing panel size for a buildng that did not
     receive any previous permitted work. The inference model is based upon
     the empirical ECDF which relates the age of the home to the probability
     of permitted work by DAC status.'''
 
-    nan_ind = ~sf_buildings_ces['year_built'].isna()
-    dac_ind = sf_buildings_ces['dac_status'] == 'DAC'
+    nan_ind = ~buildings_ces['year_built'].isna()
+    dac_ind = buildings_ces['dac_status'] == 'DAC'
     dac_permit_sum = dac_ind.sum()
-    non_dac_ind = sf_buildings_ces['dac_status'] == 'Non-DAC'
+    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
     non_dac_permit_sum = non_dac_ind.sum()
 
-    dac_ages = pd.DataFrame(2022-sf_buildings_ces.loc[(nan_ind & dac_ind),'year_built'].dt.year)
-    non_dac_ages = pd.DataFrame(2022-sf_buildings_ces.loc[(nan_ind & non_dac_ind),'year_built'].dt.year)
+    dac_ages = pd.DataFrame(2022-buildings_ces.loc[(nan_ind & dac_ind),'year_built'].dt.year)
+    non_dac_ages = pd.DataFrame(2022-buildings_ces.loc[(nan_ind & non_dac_ind),'year_built'].dt.year)
 
     rs = 12345678
     np.random.seed(rs)
@@ -174,10 +181,10 @@ def InferSFExistingFromModel(sf_buildings_ces):
     dac_ecdf = ECDF(dac_ages['year_built'])
 
     dac_odds_ratio = non_dac_permit_sum / dac_permit_sum
-    start_year = np.min(sf_buildings_ces['permit_issue_date'].dt.year)
+    start_year = np.min(buildings_ces['permit_issue_date'].dt.year)
 
-    dac_ind = (~sf_buildings_ces['year_built'].isna()) & (sf_buildings_ces['dac_status'] == 'DAC') & (sf_buildings_ces['permitted_panel_upgrade'] == False)
-    dac_x = pd.DataFrame(start_year - sf_buildings_ces.loc[dac_ind,'year_built'].dt.year)
+    dac_ind = (~buildings_ces['year_built'].isna()) & (buildings_ces['dac_status'] == 'DAC') & (buildings_ces['permitted_panel_upgrade'] == False)
+    dac_x = pd.DataFrame(start_year - buildings_ces.loc[dac_ind,'year_built'].dt.year)
     dac_neg_ind = dac_x['year_built'] < 0
     dac_x.loc[dac_neg_ind,'year_built'] = 0
     dac_y = dac_ecdf(dac_x) / dac_odds_ratio
@@ -190,8 +197,8 @@ def InferSFExistingFromModel(sf_buildings_ces):
 
     non_dac_ecdf = ECDF(non_dac_ages['year_built'])
 
-    non_dac_ind = (~sf_buildings_ces['year_built'].isna()) & (sf_buildings_ces['dac_status'] == 'Non-DAC') & (sf_buildings_ces['permitted_panel_upgrade'] == False)
-    non_dac_x = pd.DataFrame(start_year - sf_buildings_ces.loc[non_dac_ind,'year_built'].dt.year)
+    non_dac_ind = (~buildings_ces['year_built'].isna()) & (buildings_ces['dac_status'] == 'Non-DAC') & (buildings_ces['permitted_panel_upgrade'] == False)
+    non_dac_x = pd.DataFrame(start_year - buildings_ces.loc[non_dac_ind,'year_built'].dt.year)
     non_dac_neg_ind = non_dac_x['year_built'] < 0
     non_dac_x.loc[non_dac_neg_ind,'year_built'] = 0
     non_dac_y = non_dac_ecdf(non_dac_x)
@@ -206,42 +213,42 @@ def InferSFExistingFromModel(sf_buildings_ces):
 
     upgrade_scale = [ 30., 60., 100., 125., 150., 200., 225., 300., 400., 600., 800.0, 1000.0]
 
-    sf_buildings_ces['inferred_panel_upgrade'] = False
+    buildings_ces['inferred_panel_upgrade'] = False
 
     # DAC Loop
     for apn, row in dac_x.iterrows():
 
-        as_built = sf_buildings_ces.loc[apn,'panel_size_as_built']
+        as_built = buildings_ces.loc[apn,'panel_size_as_built']
         
         if as_built == np.nan:
             continue
         
         existing = as_built
 
-        if (row['previous_upgrade'] == True) & (sf_buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
+        if (row['previous_upgrade'] == True) & (buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
             level = upgrade_scale.index(as_built)
             existing = upgrade_scale[level + 1]
-            sf_buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
+            buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
         
-        sf_buildings_ces.loc[apn,'panel_size_existing'] = existing
+        buildings_ces.loc[apn,'panel_size_existing'] = existing
 
     # Non-DAC Loop
     for apn, row in non_dac_x.iterrows():
 
-        as_built = sf_buildings_ces.loc[apn,'panel_size_as_built']
+        as_built = buildings_ces.loc[apn,'panel_size_as_built']
         
         if as_built == np.nan:
             continue
         
         existing = as_built
 
-        if (row['previous_upgrade'] == True) & (sf_buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
+        if (row['previous_upgrade'] == True) & (buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
             level = upgrade_scale.index(as_built)
             existing = upgrade_scale[level + 1]
-            sf_buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
+            buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
         
-        sf_buildings_ces.loc[apn,'panel_size_existing'] = existing
+        buildings_ces.loc[apn,'panel_size_existing'] = existing
     
-    sf_buildings_ces['panel_upgrade'] = sf_buildings_ces.loc[:,['permitted_panel_upgrade','inferred_panel_upgrade']].any(axis = 1)
+    buildings_ces['panel_upgrade'] = buildings_ces.loc[:,['permitted_panel_upgrade','inferred_panel_upgrade']].any(axis = 1)
     
-    return sf_buildings_ces
+    return buildings_ces

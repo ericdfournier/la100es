@@ -7,7 +7,7 @@ import os
 
 #%% Building Permit Data Import Function
 
-def ImportSingleFamilyBuildingPermitData():
+def ImportBuildingPermitData(sector):
     '''Function to import pre-processed single family building
     permit data from local postgres database'''
     
@@ -22,8 +22,10 @@ def ImportSingleFamilyBuildingPermitData():
     db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db
     db_con = sql.create_engine(db_con_string)
 
-    # Read Input Table from DB
-    buildings_sql = '''SELECT    "ztrax_rowid",
+    if sector == 'single_family':
+        
+        # Read Input Table from DB
+        buildings_sql = '''SELECT    "ztrax_rowid",
                                     "apn",
                                     "buildings",
                                     "lot_sqft",
@@ -57,43 +59,10 @@ def ImportSingleFamilyBuildingPermitData():
                                     "usedescription" = 'Single' AND
                                     "county_landuse_description" NOT IN ('SINGLE RESIDENTIAL - CONDOMINIUM', 'SINGLE FAMILY RESIDENTIAL - VACANT');'''
 
-    buildings = pd.read_sql(buildings_sql, db_con)
+    elif sector == 'multi_family':
 
-    buildings['census_tract'] = pd.to_numeric(buildings['census_tract'], errors = 'coerce')
-
-    buildings.loc[buildings['year_built'] == '0001-01-01 BC', 'year_built'] = ''
-    buildings.loc[buildings['roll_year'] == '0001-01-01 BC', 'roll_year'] = ''
-    buildings.loc[buildings['roll_landbaseyear'] == '0001-01-01 BC', 'roll_landbaseyear'] = ''
-    buildings.loc[buildings['roll_impbaseyear'] == '0001-01-01 BC', 'roll_impbaseyear'] = ''
-    buildings.loc[buildings['permit_issue_date'] == '0001-01-01 BC', 'permit_issue_date'] = ''
-
-    buildings['year_built'] = pd.to_datetime(buildings['year_built'], format = '%Y-%m-%d')
-    buildings['roll_year'] = pd.to_datetime(buildings['roll_year'], format = '%Y-%m-%d')
-    buildings['roll_landbaseyear'] = pd.to_datetime(buildings['roll_landbaseyear'], format = '%Y-%m-%d')
-    buildings['roll_impbaseyear'] = pd.to_datetime(buildings['roll_impbaseyear'], format = '%Y-%m-%d')
-    buildings['permit_issue_date'] = pd.to_datetime(buildings['permit_issue_date'], format = '%Y-%m-%d')
-
-    return buildings
-
-#%% Building Permit Data Import Function
-
-def ImportMultiFamilyBuildingPermitData():
-    '''Function to import pre-processed single family building
-    permit data from local postgres database'''
-    
-    # Extract Database Connection Parameters from Environment
-    host = os.getenv('PG_HOST')
-    user = os.getenv('PG_USER')
-    password = os.getenv('PG_PASS')
-    port = os.getenv('PG_PORT')
-    db = os.getenv('PG_DB')
-
-    # Establish DB Connection
-    db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db
-    db_con = sql.create_engine(db_con_string)
-
-    # Read Input Table from DB
-    buildings_sql = '''SELECT    "ztrax_rowid",
+        # Read Input Table from DB
+        buildings_sql = '''SELECT    "ztrax_rowid",
                                     "apn",
                                     "buildings",
                                     "lot_sqft",
@@ -131,6 +100,9 @@ def ImportMultiFamilyBuildingPermitData():
                                     "county_landuse_description" NOT IN ('APARTMENT 5+ UNITS VACANT',
                                                                         'RESIDENTIAL - FOURPLEX VACANT',
                                                                         'RESIDENTIAL - TRIPLEX VACANT');'''
+    else:
+
+        raise Exception("Sector must be either 'single-family' or multi_family'")
 
     buildings = pd.read_sql(buildings_sql, db_con)
 

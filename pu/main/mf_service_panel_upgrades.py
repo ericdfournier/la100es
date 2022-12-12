@@ -10,54 +10,56 @@ import datetime
 
 #%% Set Output Figures Directory
 
-figure_dir = '/Users/edf/repos/la100es/figs/sf/'
-output_dir = '/Users/edf/repos/la100es/data/outputs/sf/'
+figure_dir = '/Users/edf/repos/la100es/figs/mf/'
+output_dir = '/Users/edf/repos/la100es/data/outputs/mf/'
+sector = 'multi_family'
 
-#%% Import SF Data and Context Layers
+#%% Import Data and Context Layers
 
-mf_buildings = io.ImportMultiFamilyBuildingPermitData()
+buildings = io.ImportBuildingPermitData(sector)
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
-mf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(mf_buildings, ces4))
+buildings_ces = utils.AssignDACStatus(utils.MergeCES(buildings, ces4))
+buildings_ces = utils.ComputeAverageUnitSize(buildings_ces)
 
 #%% Implement Initial Decision Tree
 
-sf_buildings_ces = decide.AssignAsBuiltFromDecisionTree(sf_buildings_ces)
-sf_buildings_ces = decide.AssignExistingFromPermit(sf_buildings_ces)
-sf_buildings_ces = decide.InferExistingFromModel(sf_buildings_ces)
-sf_buildings_ces = utils.UpgradeTimeDelta(sf_buildings_ces)
+buildings_ces = decide.AssignAsBuiltFromDecisionTree(buildings_ces, sector)
+buildings_ces = decide.AssignExistingFromPermit(buildings_ces, sector)
+buildings_ces = decide.InferExistingFromModel(buildings_ces, sector)
+buildings_ces = utils.UpgradeTimeDelta(buildings_ces)
 
 #%% Compute Statistics
 
-panel_stats_ces_geo = utils.ChangeStatistics(sf_buildings_ces, ces4)
+panel_stats_ces_geo = utils.ChangeStatistics(buildings_ces, ces4)
 
 #%% Generate Plots
 
-plot.SingleFamilyCountsMap(sf_buildings, ces4, ladwp, figure_dir)
-plot.AsBuiltPanelRatingsMap(sf_buildings_ces, ces4, ladwp, figure_dir)
-plot.AsBuiltPanelRatingsHist(sf_buildings_ces, ces4, ladwp, figure_dir)
-plot.AsBuiltPanelRatingsBar(sf_buildings_ces, figure_dir)
-plot.PermitTimeSeries(sf_buildings_ces, figure_dir)
-plot.PermitCountsMap(sf_buildings_ces, ces4, ladwp, figure_dir)
-plot.PermitCountsHistAnimation(sf_buildings_ces, figure_dir)
-plot.PermitVintageYearECDF(sf_buildings_ces, figure_dir)
+plot.CountsMap(buildings, ces4, ladwp, figure_dir)
+plot.AsBuiltPanelRatingsMap(buildings_ces, ces4, ladwp, figure_dir)
+plot.AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir)
+plot.AsBuiltPanelRatingsBar(buildings_ces, figure_dir)
+plot.PermitTimeSeries(buildings_ces, figure_dir)
+plot.PermitCountsMap(buildings_ces, ces4, ladwp, figure_dir)
+plot.PermitCountsHistAnimation(buildings_ces, figure_dir)
+plot.PermitVintageYearECDF(buildings_ces, figure_dir)
 plot.ExistingPanelRatingsChangeCountsBar(panel_stats_ces_geo, figure_dir)
 plot.ExistingPanelRatingsChangeAmpsBox(panel_stats_ces_geo, figure_dir)
 plot.ExistingPanelRatingsChangeAmpsScatter(panel_stats_ces_geo, figure_dir)
 plot.ExistingPanelRatingsChangeAmpsHist(panel_stats_ces_geo, figure_dir)
 plot.ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
-plot.ExistingPanelRatingsHist(sf_buildings_ces, ces4, ladwp, figure_dir)
+plot.ExistingPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir)
 plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
 
 #%% Print Diagnostics
 
-utils.AsBuiltPanelRatingsDiagnostics(sf_buildings_ces)
-utils.PanelUpgradeDiagnostics(sf_buildings_ces)
-utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces)
+utils.AsBuiltPanelRatingsDiagnostics(buildings_ces)
+utils.PanelUpgradeDiagnostics(buildings_ces)
+utils.ExistingPanelRatingsDiagnostics(buildings_ces)
 
 #%% Process and Output to File
 
-final = utils.SortColumns(sf_buildings_ces)
+final = utils.SortColumns(buildings_ces, sector)
 ts = str(datetime.datetime.now())
-final.to_csv(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.csv')
-final.to_json(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.geojson')
+final.to_csv(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.csv')
+final.to_json(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.geojson')
