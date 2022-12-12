@@ -41,7 +41,7 @@ def ComputeAverageUnitSize(buildings_ces):
 
 #%% Print As-Built Diagnostic Stats
 
-def AsBuiltPanelRatingsDiagnostics(buildings_ces):
+def AsBuiltPanelRatingsDiagnostics(buildings_ces, sector):
 
     dac_ind = buildings_ces['dac_status'] == 'DAC'
     non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
@@ -49,19 +49,41 @@ def AsBuiltPanelRatingsDiagnostics(buildings_ces):
     dac_sample = buildings_ces.loc[dac_ind,:]
     non_dac_sample = buildings_ces.loc[non_dac_ind,:]
 
-    print('DAC As-Built Capacity Stats:')
-    total = dac_sample['apn'].count()
-    print('<100 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] < 100,'apn'].count() / total * 100.0))
-    print('>=100 & <200 Amps: {:.2f}%'.format(dac_sample.loc[(dac_sample['panel_size_as_built'] >= 100) & (dac_sample['panel_size_as_built'] < 200),'apn'].count() / total * 100.0))
-    print('>=200 Amp: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] >= 200,'apn'].count() / total * 100.0))
+    if sector == 'single_family':
 
-    print('\n')
+        print('DAC As-Built Capacity Stats:')
+        total = dac_sample['apn'].count()
+        print('<100 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] < 100,'apn'].count() / total * 100.0))
+        print('>=100 & <200 Amps: {:.2f}%'.format(dac_sample.loc[(dac_sample['panel_size_as_built'] >= 100) & (dac_sample['panel_size_as_built'] < 200),'apn'].count() / total * 100.0))
+        print('>=200 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] >= 200,'apn'].count() / total * 100.0))
 
-    print('Non-DAC As-Built Capacity Stats:')
-    total = non_dac_sample['apn'].count()
-    print('<100 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] < 100,'apn'].count() / total * 100.0))
-    print('>=100 & <200 Amps: {:.2f}%'.format(non_dac_sample.loc[(non_dac_sample['panel_size_as_built'] >= 100) & (non_dac_sample['panel_size_as_built'] < 200),'apn'].count() / total * 100.0))
-    print('>=200 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] >= 200,'apn'].count() / total * 100.0))
+        print('\n')
+
+        print('Non-DAC As-Built Capacity Stats:')
+        total = non_dac_sample['apn'].count()
+        print('<100 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] < 100,'apn'].count() / total * 100.0))
+        print('>=100 & <200 Amps: {:.2f}%'.format(non_dac_sample.loc[(non_dac_sample['panel_size_as_built'] >= 100) & (non_dac_sample['panel_size_as_built'] < 200),'apn'].count() / total * 100.0))
+        print('>=200 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] >= 200,'apn'].count() / total * 100.0))
+
+    elif sector == 'multi_family':
+
+        print('DAC As-Built Capacity Stats:')
+        total = dac_sample['apn'].count()
+        print('<60 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] < 60,'apn'].count() / total * 100.0))
+        print('>=60 & <100 Amps: {:.2f}%'.format(dac_sample.loc[(dac_sample['panel_size_as_built'] >= 60) & (dac_sample['panel_size_as_built'] < 100),'apn'].count() / total * 100.0))
+        print('>=100 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] >= 100,'apn'].count() / total * 100.0))
+
+        print('\n')
+
+        print('Non-DAC As-Built Capacity Stats:')
+        total = non_dac_sample['apn'].count()
+        print('<60 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] < 60,'apn'].count() / total * 100.0))
+        print('>=60 & <100 Amps: {:.2f}%'.format(non_dac_sample.loc[(non_dac_sample['panel_size_as_built'] >= 60) & (non_dac_sample['panel_size_as_built'] < 100),'apn'].count() / total * 100.0))
+        print('>=100 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] >= 100,'apn'].count() / total * 100.0))
+
+    else: 
+
+        raise Exception("Sector must be either 'single_family' or 'multi_family'")
 
     return
 

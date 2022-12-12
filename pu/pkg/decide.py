@@ -8,7 +8,7 @@ from statsmodels.distributions.empirical_distribution import ECDF
 
 #%% Implement Decision Tree Function
 
-def AssignAsBuiltFromDecisionTree(buildings_ces):
+def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
     '''Function to assign as-built panel size ratings to residential
     buildings using a vintage year and square footage based decision tree'''
 
@@ -60,7 +60,9 @@ def AssignAsBuiltFromDecisionTree(buildings_ces):
     names = list(map(list, product(vintage_names, size_names)))
     combs = list(map(list, product(vintage_bins, size_bins)))
 
-    panel_sizes = [     30,     # [['vintage_pre_1978', 'size_minus_1k'],
+    if sector == 'single_family':
+
+        panel_sizes = [     30,     # [['vintage_pre_1978', 'size_minus_1k'],
                         60,     # ['vintage_pre_1978', 'size_1k_2k'],
                         100,    # ['vintage_pre_1978', 'size_2k_3k'], 
                         125,    # ['vintage_pre_1978', 'size_3k_4k'],
@@ -79,6 +81,27 @@ def AssignAsBuiltFromDecisionTree(buildings_ces):
                         600,    # ['vintage_post_1979', 'size_10k_20k']]
                         800]    # ['vintage_post_1979', 'size_20k_plus']]
 
+    elif sector == 'multi_family':
+
+        panel_sizes = [ 30,     # [['vintage_pre_1978', 'size_minus_1k'],
+                        30,     # ['vintage_pre_1978', 'size_1k_2k'],
+                        60,    # ['vintage_pre_1978', 'size_2k_3k'], 
+                        100,    # ['vintage_pre_1978', 'size_3k_4k'],
+                        100,    # ['vintage_pre_1978', 'size_4k_5k'],
+                        100,    # ['vintage_pre_1978', 'size_5k_8k'],
+                        200,    # ['vintage_pre_1978', 'size_8k_10k']
+                        300,    # ['vintage_pre_1978', 'size_10k_20k'],
+                        400,    # ['vintage_pre_1978', 'size_20k_plus'],
+                        60,    # ['vintage_post_1979', 'size_minus_1k'],
+                        60,    # ['vintage_post_1979', 'size_1k_2k'],
+                        100,    # ['vintage_post_1979', 'size_2k_3k'],
+                        100,    # ['vintage_post_1979', 'size_3k_4k'],
+                        200,    # ['vintage_post_1979', 'size_4k_5k']
+                        200,    # ['vintage_post_1979', 'size_5k_8k'],
+                        300,    # ['vintage_post_1979', 'size_8k_10k']] 
+                        300,    # ['vintage_post_1979', 'size_10k_20k']]
+                        400]    # ['vintage_post_1979', 'size_20k_plus']]
+
     buildings_ces['panel_size_as_built'] = np.nan
 
     for i in range(len(combs)):
@@ -91,7 +114,7 @@ def AssignAsBuiltFromDecisionTree(buildings_ces):
 
 #%% Assign Existing Panel Size Based Upon Permit Description
 
-def AssignSFExistingFromPermit(buildings_ces):
+def AssignExistingFromPermit(buildings_ces):
     '''Use work description from permit data to assign existing panel rating'''
 
     # Find Locations with Upgrades of Different Size
@@ -160,7 +183,7 @@ def AssignSFExistingFromPermit(buildings_ces):
 
 #%% Infer Previous Year Upgrades Based Upon Permitted Data ECDF
 
-def InferSFExistingFromModel(buildings_ces):
+def InferExistingFromModel(buildings_ces):
     '''Function to infer the existing panel size for a buildng that did not
     receive any previous permitted work. The inference model is based upon
     the empirical ECDF which relates the age of the home to the probability

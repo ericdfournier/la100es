@@ -25,8 +25,10 @@ buildings_ces = utils.ComputeAverageUnitSize(buildings_ces)
 #%% Implement Initial Decision Tree
 
 buildings_ces = decide.AssignAsBuiltFromDecisionTree(buildings_ces, sector)
-buildings_ces = decide.AssignExistingFromPermit(buildings_ces, sector)
-buildings_ces = decide.InferExistingFromModel(buildings_ces, sector)
+
+#%%
+buildings_ces = decide.AssignExistingFromPermit(buildings_ces)
+buildings_ces = decide.InferExistingFromModel(buildings_ces)
 buildings_ces = utils.UpgradeTimeDelta(buildings_ces)
 
 #%% Compute Statistics
@@ -53,7 +55,7 @@ plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
 
 #%% Print Diagnostics
 
-utils.AsBuiltPanelRatingsDiagnostics(buildings_ces)
+utils.AsBuiltPanelRatingsDiagnostics(buildings_ces, sector)
 utils.PanelUpgradeDiagnostics(buildings_ces)
 utils.ExistingPanelRatingsDiagnostics(buildings_ces)
 
