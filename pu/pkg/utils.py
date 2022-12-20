@@ -65,6 +65,8 @@ def AsBuiltPanelRatingsDiagnostics(buildings_ces, sector):
         print('>=100 & <200 Amps: {:.2f}%'.format(non_dac_sample.loc[(non_dac_sample['panel_size_as_built'] >= 100) & (non_dac_sample['panel_size_as_built'] < 200),'apn'].count() / total * 100.0))
         print('>=200 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] >= 200,'apn'].count() / total * 100.0))
 
+        print('\n')
+
     elif sector == 'multi_family':
 
         print('DAC As-Built Capacity Stats:')
@@ -80,6 +82,8 @@ def AsBuiltPanelRatingsDiagnostics(buildings_ces, sector):
         print('<60 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] < 60,'apn'].count() / total * 100.0))
         print('>=60 & <100 Amps: {:.2f}%'.format(non_dac_sample.loc[(non_dac_sample['panel_size_as_built'] >= 60) & (non_dac_sample['panel_size_as_built'] < 100),'apn'].count() / total * 100.0))
         print('>=100 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] >= 100,'apn'].count() / total * 100.0))
+
+        print('\n')
 
     else: 
 
@@ -183,6 +187,8 @@ def PanelUpgradeDiagnostics(buildings_ces):
     print('Inferred Upgrades: {:.2f}%'.format(non_dac_inferred_panel_stats.loc[True] / non_dac_sample.shape[0] * 100))
     print('Not Upgraded: {:.2f}%'.format((non_dac_sample.shape[0] - (non_dac_inferred_panel_stats.loc[True] + non_dac_permitted_panel_stats.loc[True])) / non_dac_sample.shape[0] * 100))
 
+    print('\n')
+
     return
 
 #%% Print Capacity Stats
@@ -217,6 +223,8 @@ def ExistingPanelRatingsDiagnostics(buildings_ces):
     print('<100 Amps: {:.2f}%'.format(non_dac_sample_stats[insufficient].sum() / non_dac_sample.shape[0] * 100))
     print('>=100 : <200 Amps: {:.2f}%'.format(non_dac_sample_stats[uncertain].sum() / non_dac_sample.shape[0] * 100))
     print('>=200 Amps: {:.2f}%'.format(non_dac_sample_stats[sufficient].sum() / non_dac_sample.shape[0] * 100))
+
+    print('\n')
 
     return
 

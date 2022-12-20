@@ -192,7 +192,7 @@ def AssignExistingFromPermit(buildings_ces, sector):
 
 #%% Infer Previous Year Upgrades Based Upon Permitted Data ECDF
 
-def InferExistingFromModel(buildings_ces):
+def InferExistingFromModel(buildings_ces, sector):
     '''Function to infer the existing panel size for a buildng that did not
     receive any previous permitted work. The inference model is based upon
     the empirical ECDF which relates the age of the home to the probability

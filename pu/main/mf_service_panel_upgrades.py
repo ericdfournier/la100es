@@ -1,6 +1,6 @@
 #%% Package Imports
 
-os.chdir('/Users/edf/repos/la100es/pu/')
+os.chdir('/Users/edf/repos/la100es-panel-upgrades/pu/')
 
 import pkg.io as io
 import pkg.plot as plot
@@ -10,8 +10,8 @@ import datetime
 
 #%% Set Output Figures Directory
 
-figure_dir = '/Users/edf/repos/la100es/figs/mf/'
-output_dir = '/Users/edf/repos/la100es/data/outputs/mf/'
+figure_dir = '/Users/edf/repos/la100es-panel-upgrades/figs/mf/'
+output_dir = '/Users/edf/repos/la100es-panel-upgrades/data/outputs/mf/'
 sector = 'multi_family'
 
 #%% Import Data and Context Layers

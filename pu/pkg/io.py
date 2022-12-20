@@ -147,6 +147,31 @@ def ImportCalEnviroScreenData():
     
     return ces4
 
+#%% Import SB-535 DAC Data
+
+def ImportSB535Data():
+    '''Function to import SB-535 census tract level geospatial
+    data from local postgres database'''
+
+    # Extract Database Connection Parameters from Environment
+    host = os.getenv('PG_HOST')
+    user = os.getenv('PG_USER')
+    password = os.getenv('PG_PASS')
+    port = os.getenv('PG_PORT')
+    db = os.getenv('PG_DB')
+
+    # Establish DB Connection
+    db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db
+    db_con = sql.create_engine(db_con_string)
+
+    # Read table from database and format columns
+    sb535_sql = '''SELECT * FROM ladwp.sb535_dacs'''
+    sb535 = gpd.read_postgis(sb535_sql, db_con, geom_col = 'geom')
+    cols = [x.lower() for x in sb535.columns]
+    sb535.columns = cols
+    
+    return sb535
+
 #%% Read LADWP Boundary 
 
 def ImportLadwpServiceTerritoryData():
