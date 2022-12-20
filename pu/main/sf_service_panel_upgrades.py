@@ -1,6 +1,6 @@
 #%% Package Imports
 
-os.chdir('/Users/edf/repos/la100es/pu/')
+os.chdir('/Users/edf/repos/la100es-panel-upgrades/pu/')
 
 import pkg.io as io
 import pkg.plot as plot
@@ -10,21 +10,22 @@ import datetime
 
 #%% Set Output Figures Directory
 
-figure_dir = '/Users/edf/repos/la100es/figs/'
-output_dir = '/Users/edf/repos/la100es/data/outputs/'
+figure_dir = '/Users/edf/repos/la100es-panel-upgrades/figs/sf/'
+output_dir = '/Users/edf/repos/la100es-panel-upgrades/data/outputs/sf/'
+sector = 'single_family'
 
 #%% Import SF Data and Context Layers
 
-sf_buildings = io.ImportSFBuildingPermitData()
+sf_buildings = io.ImportBuildingPermitData(sector)
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
 sf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(sf_buildings, ces4))
 
 #%% Implement Initial Decision Tree
 
-sf_buildings_ces = decide.AssignSFAsBuiltFromDecisionTree(sf_buildings_ces)
-sf_buildings_ces = decide.AssignSFExistingFromPermit(sf_buildings_ces)
-sf_buildings_ces = decide.InferSFExistingFromModel(sf_buildings_ces)
+sf_buildings_ces = decide.AssignAsBuiltFromDecisionTree(sf_buildings_ces, sector)
+sf_buildings_ces = decide.AssignExistingFromPermit(sf_buildings_ces, sector)
+sf_buildings_ces = decide.InferExistingFromModel(sf_buildings_ces, sector)
 sf_buildings_ces = utils.UpgradeTimeDelta(sf_buildings_ces)
 
 #%% Compute Statistics
@@ -33,7 +34,7 @@ panel_stats_ces_geo = utils.ChangeStatistics(sf_buildings_ces, ces4)
 
 #%% Generate Plots
 
-plot.SingleFamilyCountsMap(sf_buildings, ces4, ladwp, figure_dir)
+plot.CountsMap(sf_buildings, ces4, ladwp, figure_dir)
 plot.AsBuiltPanelRatingsMap(sf_buildings_ces, ces4, ladwp, figure_dir)
 plot.AsBuiltPanelRatingsHist(sf_buildings_ces, ces4, ladwp, figure_dir)
 plot.AsBuiltPanelRatingsBar(sf_buildings_ces, figure_dir)
@@ -51,7 +52,10 @@ plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
 
 #%% Print Diagnostics
 
-utils.AsBuiltPanelRatingsDiagnostics(sf_buildings_ces)
+utils.AsBuiltPanelRatingsDiagnostics(sf_buildings_ces, sector)
+
+# TODO - Verify that code has been updated for sectoral bifurcation 
+# from this point on
 utils.PanelUpgradeDiagnostics(sf_buildings_ces)
 utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces)
 
