@@ -53,9 +53,6 @@ plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
 #%% Print Diagnostics
 
 utils.AsBuiltPanelRatingsDiagnostics(sf_buildings_ces, sector)
-
-# TODO - Verify that code has been updated for sectoral bifurcation 
-# from this point on
 utils.PanelUpgradeDiagnostics(sf_buildings_ces)
 utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces)
 
