@@ -27,12 +27,6 @@ buildings_ces = utils.ComputeAverageUnitSize(buildings_ces)
 buildings_ces = decide.AssignAsBuiltFromDecisionTree(buildings_ces, sector)
 buildings_ces = decide.AssignExistingFromPermit(buildings_ces, sector)
 buildings_ces = decide.InferExistingFromModel(buildings_ces, sector)
-
-#TODO: Stopping point. Need to modify the inference routine to account
-# for the difference between the number of units and the upgrade scales between
-# the single_family and multi_family sectors...
-
-#%%
 buildings_ces = utils.UpgradeTimeDelta(buildings_ces)
 
 #%% Compute Statistics
@@ -40,6 +34,9 @@ buildings_ces = utils.UpgradeTimeDelta(buildings_ces)
 panel_stats_ces_geo = utils.ChangeStatistics(buildings_ces, ces4)
 
 #%% Generate Plots
+
+# TODO: Modify plot routines to differentiate by sector input flag.
+# Make sure to keep track of the difference between properties and units!
 
 plot.CountsMap(buildings, ces4, ladwp, figure_dir)
 plot.AsBuiltPanelRatingsMap(buildings_ces, ces4, ladwp, figure_dir)

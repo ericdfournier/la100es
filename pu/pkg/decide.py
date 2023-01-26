@@ -19,52 +19,52 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
     else:
         raise Exception("Sector must be either 'single_family' or 'multi_family'")
 
-    vintage_pre_1978 = buildings_ces['year_built'].dt.year < 1978
-    vintage_post_1978 = buildings_ces['year_built'].dt.year >= 1978
-
-    size_minus_1k = (buildings_ces[size_col] >= 0) & (buildings_ces[size_col] < 1000) 
-    size_1k_2k = (buildings_ces[size_col] >= 1000) & (buildings_ces[size_col] < 2000) 
-    size_2k_3k = (buildings_ces[size_col] >= 2000) & (buildings_ces[size_col] < 3000)
-    size_3k_4k = (buildings_ces[size_col] >= 3000) & (buildings_ces[size_col] < 4000)
-    size_4k_5k = (buildings_ces[size_col] >= 4000) & (buildings_ces[size_col] < 5000)
-    size_5k_8k = (buildings_ces[size_col] >= 5000) & (buildings_ces[size_col] < 8000)
-    size_8k_10k = (buildings_ces[size_col] >= 8000) & (buildings_ces[size_col] < 10000)
-    size_10k_20k = (buildings_ces[size_col] >= 10000) & (buildings_ces[size_col] < 20000)
-    size_20k_plus = (buildings_ces[size_col] >= 20000)
-
-    vintage_names = ['vintage_pre_1978', 'vintage_post_1979']
-
-    size_names = [      'size_minus_1k',
-                        'size_1k_2k',
-                        'size_2k_3k',
-                        'size_3k_4k',
-                        'size_4k_5k',
-                        'size_5k_8k',
-                        'size_8k_10k'
-                        'size_10k_20k',
-                        'size_20k_plus']
-
-    vintage_bins = [    vintage_pre_1978, 
-                        vintage_post_1978]
-
-    size_bins = [       size_minus_1k, 
-                        size_1k_2k,
-                        size_2k_3k,
-                        size_3k_4k,
-                        size_4k_5k,
-                        size_5k_8k,
-                        size_8k_10k,
-                        size_10k_20k,
-                        size_20k_plus]
-
-    names = list(map(list, product(vintage_names, size_names)))
-    combs = list(map(list, product(vintage_bins, size_bins)))
-
     if sector == 'single_family':
 
-        panel_sizes = [     30,     # [['vintage_pre_1978', 'size_minus_1k'],
+        vintage_pre_1978 = buildings_ces['year_built'].dt.year < 1978
+        vintage_post_1978 = buildings_ces['year_built'].dt.year >= 1978
+
+        size_minus_1k = (buildings_ces[size_col] >= 0) & (buildings_ces[size_col] < 1000)
+        size_1k_2k = (buildings_ces[size_col] >= 1000) & (buildings_ces[size_col] < 2000)
+        size_2k_3k = (buildings_ces[size_col] >= 2000) & (buildings_ces[size_col] < 3000)
+        size_3k_4k = (buildings_ces[size_col] >= 3000) & (buildings_ces[size_col] < 4000)
+        size_4k_5k = (buildings_ces[size_col] >= 4000) & (buildings_ces[size_col] < 5000)
+        size_5k_8k = (buildings_ces[size_col] >= 5000) & (buildings_ces[size_col] < 8000)
+        size_8k_10k = (buildings_ces[size_col] >= 8000) & (buildings_ces[size_col] < 10000)
+        size_10k_20k = (buildings_ces[size_col] >= 10000) & (buildings_ces[size_col] < 20000)
+        size_20k_plus = (buildings_ces[size_col] >= 20000)
+
+        vintage_names = ['vintage_pre_1978', 'vintage_post_1979']
+
+        size_names = [      'size_minus_1k',
+                            'size_1k_2k',
+                            'size_2k_3k',
+                            'size_3k_4k',
+                            'size_4k_5k',
+                            'size_5k_8k',
+                            'size_8k_10k'
+                            'size_10k_20k',
+                            'size_20k_plus']
+
+        vintage_bins = [    vintage_pre_1978,
+                            vintage_post_1978]
+
+        size_bins = [       size_minus_1k,
+                            size_1k_2k,
+                            size_2k_3k,
+                            size_3k_4k,
+                            size_4k_5k,
+                            size_5k_8k,
+                            size_8k_10k,
+                            size_10k_20k,
+                            size_20k_plus]
+
+        names = list(map(list, product(vintage_names, size_names)))
+        combs = list(map(list, product(vintage_bins, size_bins)))
+
+        panel_sizes = [ 30,     # [['vintage_pre_1978', 'size_minus_1k'],
                         60,     # ['vintage_pre_1978', 'size_1k_2k'],
-                        100,    # ['vintage_pre_1978', 'size_2k_3k'], 
+                        100,    # ['vintage_pre_1978', 'size_2k_3k'],
                         125,    # ['vintage_pre_1978', 'size_3k_4k'],
                         150,    # ['vintage_pre_1978', 'size_4k_5k'],
                         200,    # ['vintage_pre_1978', 'size_5k_8k'],
@@ -77,36 +77,46 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
                         200,    # ['vintage_post_1979', 'size_3k_4k'],
                         225,    # ['vintage_post_1979', 'size_4k_5k']
                         300,    # ['vintage_post_1979', 'size_5k_8k'],
-                        400,    # ['vintage_post_1979', 'size_8k_10k']] 
+                        400,    # ['vintage_post_1979', 'size_8k_10k']]
                         600,    # ['vintage_post_1979', 'size_10k_20k']]
                         800]    # ['vintage_post_1979', 'size_20k_plus']]
 
     elif sector == 'multi_family':
 
-        panel_sizes = [ 30,     # [['vintage_pre_1978', 'size_minus_1k'],
-                        30,     # ['vintage_pre_1978', 'size_1k_2k'],
-                        60,    # ['vintage_pre_1978', 'size_2k_3k'], 
-                        100,    # ['vintage_pre_1978', 'size_3k_4k'],
-                        100,    # ['vintage_pre_1978', 'size_4k_5k'],
-                        100,    # ['vintage_pre_1978', 'size_5k_8k'],
-                        200,    # ['vintage_pre_1978', 'size_8k_10k']
-                        300,    # ['vintage_pre_1978', 'size_10k_20k'],
-                        400,    # ['vintage_pre_1978', 'size_20k_plus'],
-                        60,    # ['vintage_post_1979', 'size_minus_1k'],
-                        60,    # ['vintage_post_1979', 'size_1k_2k'],
-                        100,    # ['vintage_post_1979', 'size_2k_3k'],
-                        100,    # ['vintage_post_1979', 'size_3k_4k'],
-                        200,    # ['vintage_post_1979', 'size_4k_5k']
-                        200,    # ['vintage_post_1979', 'size_5k_8k'],
-                        300,    # ['vintage_post_1979', 'size_8k_10k']] 
-                        300,    # ['vintage_post_1979', 'size_10k_20k']]
-                        400]    # ['vintage_post_1979', 'size_20k_plus']]
+        vintage_pre_1950 = buildings_ces['year_built'].dt.year < 1950
+        vintage_1950_1975 = (buildings_ces['year_built'].dt.year >= 1950) & (buildings_ces['year_built'].dt.year < 1975)
+        vintage_1975_2010 = (buildings_ces['year_built'].dt.year >= 1975) & (buildings_ces['year_built'].dt.year < 2010)
+        vintage_post_2010 = buildings_ces['year_built'].dt.year >= 2010
+
+        vintage_names = [   'vintage_pre_1950',
+                            'vintage_1950_1975',
+                            'vintage_1975_2010',
+                            'vintage_post_2010']
+
+        vintage_bins = [    vintage_pre_1950,
+                            vintage_1950_1975,
+                            vintage_1975_2010,
+                            vintage_post_2010 ]
+
+        names = vintage_names
+        combs = vintage_bins
+
+        panel_sizes = [ 40,     # 'vintage_pre_1950'
+                        60,     # 'vintage_1950_1975'
+                        90,     # 'vintage_1975_2010'
+                        150 ]   # 'vintage_post_2010'
 
     buildings_ces['panel_size_as_built'] = np.nan
 
     for i in range(len(combs)):
 
-        buildings_ces.loc[(combs[i][0] & combs[i][1]),'panel_size_as_built'] = panel_sizes[i]
+        if sector == 'single_family':
+
+            buildings_ces.loc[(combs[i][0] & combs[i][1]),'panel_size_as_built'] = panel_sizes[i]
+
+        elif sector == 'multi_family':
+
+            buildings_ces.loc[combs[i],'panel_size_as_built'] = panel_sizes[i]
 
     buildings_ces.reset_index(inplace = True, drop = True)
 
@@ -139,50 +149,50 @@ def AssignExistingFromPermit(buildings_ces, sector):
 
     buildings_ces['panel_size_existing'] = buildings_ces['panel_size_as_built']
 
-    upgrade_scale = [ 30., 60., 100., 125., 150., 200., 225., 300., 400., 600., 800.0, 1000.0]
+    if sector == 'single_family':
+
+        upgrade_scale = [ 30., 60., 100., 125., 150., 200., 225., 300., 400., 600., 800.0, 1000.0]
+
+    elif sector == 'multi_family':
+
+        upgrade_scale = [ 40., 60., 90., 100., 150., 200.]
 
     ind_dict = {100.0:pu_100,
                 125.0:pu_125,
-                150.0:pu_150, 
-                200.0:pu_200, 
+                150.0:pu_150,
+                200.0:pu_200,
                 225.0:pu_225,
-                300.0:pu_300, 
+                300.0:pu_300,
                 400.0:pu_400,
                 600.0:pu_600}
 
     buildings_ces['permitted_panel_upgrade'] = False
 
     for k, v in ind_dict.items():
-        
+
         v[v.isna()] = False
         proposed = buildings_ces.loc[v,'panel_size_as_built']
         change_ind = proposed < k
         proposed.loc[change_ind] = k
+        buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed
 
-        if sector == 'single_family':
+    pu_other[pu_other.isna()] = False
+    proposed = buildings_ces.loc[pu_other, 'panel_size_as_built']
 
-            buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed
-        
-        elif sector == 'multi_family':
-
-            buildings_ces.loc[proposed.index,'panel_size_existing'] = proposed / buildings_ces.loc[proposed.index,'units']
-
-    if sector == 'single_family':
-
-        pu_other[pu_other.isna()] = False
-        proposed = buildings_ces.loc[pu_other, 'panel_size_as_built']
-
-        for p in proposed.iteritems():
-            c = None
-            if np.isnan(p[1]):
-                c = 100.0
-            else:
-                c = p[1]
-            k = upgrade_scale.index(c)
-            upgrade = upgrade_scale[k+1]
-            if upgrade < 200:
+    for p in proposed.iteritems():
+        c = None
+        if np.isnan(p[1]):
+            c = 100.0
+        else:
+            c = p[1]
+        k = upgrade_scale.index(c)
+        upgrade = upgrade_scale[k+1]
+        if upgrade < 200:
+            if sector == 'single_family':
                 upgrade = 200
-            proposed.loc[p[0]] = upgrade
+            elif sector == 'multi_family':
+                upgrade = 150
+        proposed.loc[p[0]] = upgrade
 
     buildings_ces.loc[proposed.index, 'panel_size_existing'] = proposed
     upgrade_ind = buildings_ces['panel_size_existing'] > buildings_ces['panel_size_as_built']
@@ -222,7 +232,11 @@ def InferExistingFromModel(buildings_ces, sector):
     dac_y = dac_ecdf(dac_x) / dac_odds_ratio
     dac_upgrade_list = []
 
-    for pr in dac_y[:,0]: 
+    for pr in dac_y[:,0]:
+        if pr < 0.0:
+            pr = 0
+        elif pr > 1.0:
+            pr = 1.0
         dac_upgrade_list.append(np.random.choice(np.array([False, True]), size = 1, p = [1.0-pr, pr])[0])
 
     dac_x['previous_upgrade'] = dac_upgrade_list
@@ -236,7 +250,11 @@ def InferExistingFromModel(buildings_ces, sector):
     non_dac_y = non_dac_ecdf(non_dac_x)
     non_dac_upgrade_list = []
 
-    for pr in non_dac_y[:,0]: 
+    for pr in non_dac_y[:,0]:
+        if pr < 0.0:
+            pr = 0
+        elif pr > 1.0:
+            pr = 1.0
         non_dac_upgrade_list.append(np.random.choice(np.array([False, True]), size = 1, p = [1.0-pr, pr])[0])
 
     non_dac_x['previous_upgrade'] = non_dac_upgrade_list
@@ -244,12 +262,12 @@ def InferExistingFromModel(buildings_ces, sector):
     # Loop Through and Assess Upgrades for DAC and Non-DAC cohorts
 
     if sector == 'single_family':
-        
+
         upgrade_scale = [ 30., 60., 100., 125., 150., 200., 225., 300., 400., 600., 800.0, 1000.0]
-    
+
     elif sector == 'multi_family':
 
-        upgrade_scale = [ 30., 60., 100., 200., 300., 400., 600.]
+        upgrade_scale = [ 40., 60., 90., 150., 200.]
 
     buildings_ces['inferred_panel_upgrade'] = False
 
@@ -257,36 +275,37 @@ def InferExistingFromModel(buildings_ces, sector):
     for apn, row in dac_x.iterrows():
 
         as_built = buildings_ces.loc[apn,'panel_size_as_built']
-        
+
         if as_built == np.nan:
             continue
-        
+
         existing = as_built
 
         if (row['previous_upgrade'] == True) & (buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
             level = upgrade_scale.index(as_built)
             existing = upgrade_scale[level + 1]
             buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
-        
+
         buildings_ces.loc[apn,'panel_size_existing'] = existing
 
     # Non-DAC Loop
     for apn, row in non_dac_x.iterrows():
 
         as_built = buildings_ces.loc[apn,'panel_size_as_built']
-        
+
         if as_built == np.nan:
+
             continue
-        
+
         existing = as_built
 
         if (row['previous_upgrade'] == True) & (buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
             level = upgrade_scale.index(as_built)
             existing = upgrade_scale[level + 1]
             buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
-        
+
         buildings_ces.loc[apn,'panel_size_existing'] = existing
-    
+
     buildings_ces['panel_upgrade'] = buildings_ces.loc[:,['permitted_panel_upgrade','inferred_panel_upgrade']].any(axis = 1)
-    
+
     return buildings_ces
