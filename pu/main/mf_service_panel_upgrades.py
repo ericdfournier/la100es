@@ -16,22 +16,22 @@ sector = 'multi_family'
 
 #%% Import Data and Context Layers
 
-buildings = io.ImportBuildingPermitData(sector)
+mf_buildings = io.ImportBuildingPermitData(sector)
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
-buildings_ces = utils.AssignDACStatus(utils.MergeCES(buildings, ces4))
-buildings_ces = utils.ComputeAverageUnitSize(buildings_ces)
+mf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(mf_buildings, ces4))
+mf_buildings_ces = utils.ComputeAverageUnitSize(mf_buildings_ces)
 
 #%% Implement Initial Decision Tree
 
-buildings_ces = decide.AssignAsBuiltFromDecisionTree(buildings_ces, sector)
-buildings_ces = decide.AssignExistingFromPermit(buildings_ces, sector)
-buildings_ces = decide.InferExistingFromModel(buildings_ces, sector)
-buildings_ces = utils.UpgradeTimeDelta(buildings_ces)
+mf_buildings_ces = decide.AssignAsBuiltFromDecisionTree(mf_buildings_ces, sector)
+mf_buildings_ces = decide.AssignExistingFromPermit(mf_buildings_ces, sector)
+mf_buildings_ces = decide.InferExistingFromModel(mf_buildings_ces, sector)
+mf_buildings_ces = utils.UpgradeTimeDelta(mf_buildings_ces)
 
 #%% Compute Statistics
 
-panel_stats_ces_geo = utils.ChangeStatistics(buildings_ces, ces4)
+panel_stats_ces_geo = utils.ChangeStatistics(mf_buildings_ces, ces4)
 
 #%% Generate Plots
 
