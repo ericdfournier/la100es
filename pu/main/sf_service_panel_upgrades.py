@@ -58,7 +58,7 @@ utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces)
 
 #%% Process and Output to File
 
-final = utils.SortColumns(sf_buildings_ces)
+final = utils.SortColumns(sf_buildings_ces, sector)
 ts = str(datetime.datetime.now())
 final.to_csv(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.csv')
 final.to_json(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.geojson')
