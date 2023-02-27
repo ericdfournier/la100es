@@ -97,9 +97,9 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
     elif sector == 'multi_family':
 
         vintage_pre_1883 = buildings_ces['year_built'].dt.year < 1883
-        vintage_pre_1950 = (buildings_ces['year_built'].dt.year >= 1883) & (buildings_ces['year_built'].dt.year < 1950)
-        vintage_1950_1975 = (buildings_ces['year_built'].dt.year >= 1950) & (buildings_ces['year_built'].dt.year < 1978)
-        vintage_1975_2010 = (buildings_ces['year_built'].dt.year >= 1978) & (buildings_ces['year_built'].dt.year < 2010)
+        vintage_1883_1950 = (buildings_ces['year_built'].dt.year >= 1883) & (buildings_ces['year_built'].dt.year < 1950)
+        vintage_1950_1978 = (buildings_ces['year_built'].dt.year >= 1950) & (buildings_ces['year_built'].dt.year < 1978)
+        vintage_1978_2010 = (buildings_ces['year_built'].dt.year >= 1978) & (buildings_ces['year_built'].dt.year < 2010)
         vintage_post_2010 = buildings_ces['year_built'].dt.year >= 2010
 
         vintage_names = [   'vintage_pre_1883',
@@ -120,7 +120,7 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
         panel_sizes = [ 0.,    # 'vintage_pre_1883',
                         40.,     # 'vintage_1883_1950'
                         60.,     # 'vintage_1950_1978'
-                        90.,     # 'vintage_1979_2010'
+                        90.,     # 'vintage_1978_2010'
                         150. ]   # 'vintage_post_2010'
 
     buildings_ces['panel_size_as_built'] = np.nan

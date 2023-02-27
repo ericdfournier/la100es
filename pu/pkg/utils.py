@@ -34,7 +34,7 @@ def ComputeAverageUnitSize(buildings_ces):
     unit in square feet'''
 
     buildings_ces['avg_unit_sqft'] = buildings_ces['building_sqft'] / buildings_ces['units']
-    err_ind = buildings_ces['avg_unit_sqft'] >= 30000 
+    err_ind = buildings_ces['avg_unit_sqft'] >= 30000
     buildings_ces.loc[err_ind,'avg_unit_sqft'] = buildings_ces['avg_unit_sqft'].median()
 
     return buildings_ces
@@ -85,7 +85,7 @@ def AsBuiltPanelRatingsDiagnostics(buildings_ces, sector):
 
         print('\n')
 
-    else: 
+    else:
 
         raise Exception("Sector must be either 'single_family' or 'multi_family'")
 
@@ -94,7 +94,7 @@ def AsBuiltPanelRatingsDiagnostics(buildings_ces, sector):
 #%% Compute Time Difference Between Construction Date and Upgrade Date
 
 def UpgradeTimeDelta(buildings_ces):
-    '''Function to compute the length of time that elapsed from the building's 
+    '''Function to compute the length of time that elapsed from the building's
     construction vintage year and the year of any permitted panel upgrade'''
 
     upgrade_time_delta = pd.to_numeric(buildings_ces.loc[:,'permit_issue_date'].dt.year - buildings_ces.loc[:,'year_built'].dt.year)
@@ -105,30 +105,30 @@ def UpgradeTimeDelta(buildings_ces):
 
     return buildings_ces
 
-# %% Generate Change Statistics 
+# %% Generate Change Statistics
 
 def ChangeStatistics(buildings_ces, ces4):
     '''Function to compute relevant statistics about the rate and location of changes
     in panel sizes from as-built to existing condition.'''
 
-    as_built_mean = buildings_ces.groupby('census_tract')['panel_size_as_built'].agg(['mean'])
-    as_built_mean.columns = ['mean_panel_size_as_built']
+    as_built_median = buildings_ces.groupby('census_tract')['panel_size_as_built'].agg(['median'])
+    as_built_median.columns = ['medianpanel_size_as_built']
 
     sf_property_count = buildings_ces.groupby('census_tract')['lot_sqft'].agg(['count'])
     sf_property_count.columns = ['sf_homes_count']
 
-    existing_mean = buildings_ces.groupby('census_tract')['panel_size_existing'].agg(['mean'])
-    existing_mean.columns = ['mean_panel_size_existing']
+    existing_median = buildings_ces.groupby('census_tract')['panel_size_existing'].agg(['median'])
+    existing_median.columns = ['median_panel_size_existing']
 
     upgrades_count = buildings_ces.groupby('census_tract')['panel_upgrade'].agg('sum')
     upgrades_count.name = 'upgrade_count'
 
-    panel_stats = pd.concat([as_built_mean, existing_mean, upgrades_count, sf_property_count], axis = 1)
+    panel_stats = pd.concat([as_built_median, existing_median, upgrades_count, sf_property_count], axis = 1)
 
     panel_stats['upgrade_freq_pct'] = (panel_stats['upgrade_count'] / panel_stats['sf_homes_count']).multiply(100.0)
 
-    panel_stats['upgrade_delta_amps'] = panel_stats['mean_panel_size_existing'] - panel_stats['mean_panel_size_as_built']
-    panel_stats['upgrade_delta_pct'] = panel_stats[['mean_panel_size_as_built', 'mean_panel_size_existing']].pct_change(axis = 1).iloc[:,1].multiply(100.0)
+    panel_stats['upgrade_delta_amps'] = panel_stats['median_panel_size_existing'] - panel_stats['median_panel_size_as_built']
+    panel_stats['upgrade_delta_pct'] = panel_stats[['median_panel_size_as_built', 'median_panel_size_existing']].pct_change(axis = 1).iloc[:,1].multiply(100.0)
 
     panel_stats_ces = pd.merge(panel_stats, ces4[['tract','ciscorep', 'geom']], left_index = True, right_on = 'tract', how = 'left')
 
@@ -161,18 +161,18 @@ def PanelUpgradeDiagnostics(buildings_ces):
 
     dac_sample['roll_impbaseyear_int'] = dac_sample.loc[:,'roll_impbaseyear'].dt.year
     dac_sample.loc[np.isinf(dac_sample['roll_impbaseyear_int']),'roll_impbaseyear_int'] = np.nan
-    dac_imp_year_mean = dac_sample['roll_impbaseyear_int'].mean()
-    dac_vintage_year_mean = dac_sample['year_built'].dt.year.mean()
+    dac_imp_year_median = dac_sample['roll_impbaseyear_int'].median()
+    dac_vintage_year_median = dac_sample['year_built'].dt.year.median()
 
     non_dac_sample['roll_impbaseyear_int'] = non_dac_sample.loc[:,'roll_impbaseyear'].dt.year
     non_dac_sample.loc[np.isinf(non_dac_sample['roll_impbaseyear_int']),'roll_impbaseyear_int'] = np.nan
-    non_dac_imp_year_mean = non_dac_sample['roll_impbaseyear_int'].mean()
-    non_dac_vintage_year_mean = non_dac_sample['year_built'].dt.year.mean()
+    non_dac_imp_year_median = non_dac_sample['roll_impbaseyear_int'].median()
+    non_dac_vintage_year_median = non_dac_sample['year_built'].dt.year.median()
 
     print('DAC Census Tract Upgrade Stats:')
 
-    print('Average Home Vintage Year: {:.0f}'.format(dac_vintage_year_mean))
-    print('Average Improvement Year: {:.0f}'.format(dac_imp_year_mean))
+    print('Median Home Vintage Year: {:.0f}'.format(dac_vintage_year_median))
+    print('Median Improvement Year: {:.0f}'.format(dac_imp_year_median))
     print('Permitted Upgrades: {:.2f}%'.format(dac_permitted_panel_stats.loc[True] / dac_sample.shape[0] * 100))
     print('Inferred Upgrades: {:.2f}%'.format(dac_inferred_panel_stats.loc[True] / dac_sample.shape[0] * 100))
     print('Not Upgraded: {:.2f}%'.format((dac_sample.shape[0] - (dac_inferred_panel_stats.loc[True] + dac_permitted_panel_stats.loc[True])) / dac_sample.shape[0] * 100))
@@ -181,8 +181,8 @@ def PanelUpgradeDiagnostics(buildings_ces):
 
     print('Non-DAC Census Tract Upgrade Stats:')
 
-    print('Average Home Vintage Year: {:.0f}'.format(non_dac_vintage_year_mean))
-    print('Average Improvement Year: {:.0f}'.format(non_dac_imp_year_mean))
+    print('Median Home Vintage Year: {:.0f}'.format(non_dac_vintage_year_median))
+    print('Median Improvement Year: {:.0f}'.format(non_dac_imp_year_median))
     print('Permitted Upgrades: {:.2f}%'.format(non_dac_permitted_panel_stats.loc[True] / non_dac_sample.shape[0] * 100))
     print('Inferred Upgrades: {:.2f}%'.format(non_dac_inferred_panel_stats.loc[True] / non_dac_sample.shape[0] * 100))
     print('Not Upgraded: {:.2f}%'.format((non_dac_sample.shape[0] - (non_dac_inferred_panel_stats.loc[True] + non_dac_permitted_panel_stats.loc[True])) / non_dac_sample.shape[0] * 100))
@@ -194,7 +194,7 @@ def PanelUpgradeDiagnostics(buildings_ces):
 #%% Print Capacity Stats
 
 def ExistingPanelRatingsDiagnostics(buildings_ces):
-    '''Function to print diagnostic information about the rated capacity of 
+    '''Function to print diagnostic information about the rated capacity of
     existing panels'''
 
     dac_ind = buildings_ces['dac_status'] == 'DAC'
@@ -270,7 +270,7 @@ def SortColumns(buildings_ces, sector):
             'upgrade_time_delta',
             'panel_size_existing',
             'centroid']
-    
+
     if sector == 'multi_family':
 
         cols.insert(12, 'avg_unit_sqft')
