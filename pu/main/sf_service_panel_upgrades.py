@@ -34,9 +34,9 @@ panel_stats_ces_geo = utils.ChangeStatistics(sf_buildings_ces, ces4)
 
 #%% Generate Plots
 
-plot.CountsMap(sf_buildings, ces4, ladwp, figure_dir)
-plot.AsBuiltPanelRatingsMap(sf_buildings_ces, ces4, ladwp, figure_dir)
-plot.AsBuiltPanelRatingsHist(sf_buildings_ces, ces4, ladwp, figure_dir)
+plot.CountsMap(sf_buildings, ces4, ladwp, sector, figure_dir)
+plot.AsBuiltPanelRatingsMap(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
+plot.AsBuiltPanelRatingsHist(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsBar(sf_buildings_ces, figure_dir)
 plot.PermitTimeSeries(sf_buildings_ces, figure_dir)
 plot.PermitCountsMap(sf_buildings_ces, ces4, ladwp, figure_dir)
@@ -60,5 +60,6 @@ utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces)
 
 final = utils.SortColumns(sf_buildings_ces, sector)
 ts = str(datetime.datetime.now())
+final.to_pickle(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.pk')
 final.to_csv(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.csv')
 final.to_json(output_dir + 'la100es_sf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.geojson')

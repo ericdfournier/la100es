@@ -11,7 +11,7 @@ import seaborn as sns
 
 #%% Plot the Number of SF Buildings by Tract
 
-def CountsMap(buildings, ces4, ladwp, figure_dir):
+def CountsMap(buildings, ces4, ladwp, sector, figure_dir):
 
     fig, ax = plt.subplots(1, 1, figsize = (10,10))
 
@@ -24,7 +24,7 @@ def CountsMap(buildings, ces4, ladwp, figure_dir):
         cmap = 'bone_r',
         scheme = 'naturalbreaks',
         legend = True,
-        legend_kwds = {'title': 'Single Family Homes\n[Counts]\n',
+        legend_kwds = {'title': '{} Properties\n[Counts]\n'.format(sector.capitalize()),
                         'loc': 'lower left'})
 
     dac_ind = ces4['ciscorep'] >= 75.0
@@ -42,15 +42,15 @@ def CountsMap(buildings, ces4, ladwp, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'total_number_of_homes_by_tract_map.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'total_number_of_{}_homes_by_tract_map.png'.format(sector), bbox_inches = 'tight', dpi = 300)
 
     return
 
-#%% Plot As-Built Average Panel Size by Tract
+#%% Plot As-Built Mean Panel Size by Tract
 
-def AsBuiltPanelRatingsMap(buildings_ces, ces4, ladwp, figure_dir):
+def AsBuiltPanelRatingsMap(buildings_ces, ces4, ladwp, sector, figure_dir):
 
-    as_built_avg = buildings_ces.groupby('census_tract')['panel_size_as_built'].agg('median')
+    as_built_avg = buildings_ces.groupby('census_tract')['panel_size_as_built'].agg('mean')
     as_built_df = pd.merge(ces4.loc[:,['geom','tract','ciscorep']], as_built_avg, left_on = 'tract', right_on = 'census_tract')
     as_built_df.rename(columns = {'geom':'geometry'}, inplace = True)
     as_built = gpd.GeoDataFrame(as_built_df)
@@ -65,16 +65,25 @@ def AsBuiltPanelRatingsMap(buildings_ces, ces4, ladwp, figure_dir):
     ces4.loc[non_dac_ind].boundary.plot(ax = ax, color = 'tab:blue', linewidth = 0.5)
     ladwp.boundary.plot(ax = ax, edgecolor = 'black', linewidth = 1.5)
 
+    if sector == 'single_family':
+        bins = [30, 60, 100, 125, 150, 200, 300, 400]
+        labels = ["", "30-60", "60-100", "100-125", "125-150", "150-200", "200-300", "300-400"]
+        k = len(bins)
+    elif sector == 'multi_family':
+        bins = [30, 40, 50, 60, 90, 100, 120, 150]
+        labels = ["", "30-40", "40-50", "50-60", "60-90", "90-100", "100-125", "125-150"]
+        k = len(bins)
+
     as_built.plot(ax = ax,
         column = 'panel_size_as_built',
         scheme='user_defined',
-        classification_kwds = {'bins' : [30,60,100,125,150,200,400]},
-        k = 10,
+        classification_kwds = {'bins' : bins},
+        k = k,
         cmap='bone_r',
         legend = True,
-        legend_kwds = {'title': 'Median Panel Rating\nAs-Built [Amps]\n',
+        legend_kwds = {'title': 'Mean Panel Rating\nAs-Built [Amps]\n',
                         'loc': 'lower left',
-                        "labels": ["30-60", "60-100", "100-125", "125-150", "150-200", "200-300", "300-400"]})
+                        "labels": labels})
 
     ax.set_ylim((-480000,-405000))
     ax.set_xlim((120000,170000))
@@ -83,13 +92,13 @@ def AsBuiltPanelRatingsMap(buildings_ces, ces4, ladwp, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'lac_as_built_avg_panel_size_map.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_as_built_avg_panel_size_map.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
 #%% Plot SF as built panel size ratings
 
-def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
+def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
     '''Paired DAC / Non-DAC 2D histogram of panel sizes by building
     construction vintage years'''
 
@@ -127,7 +136,14 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
         cbar_kws = {'label':'Number of Units', 'orientation':'horizontal'},
         vmin=0, vmax=4000)
 
-    ax[0].set_yticks([30, 60, 100, 125, 150, 200, 225, 300, 400, 600, 800])
+    if sector == 'single_family':
+        ylim = [0, 820]
+        bins = [30, 60, 100, 125, 150, 200, 225, 300, 400, 600, 800, 1000, 1200]
+    elif sector == 'multi_family':
+        ylim = [0, 220]
+        bins = [30, 40, 60, 90, 150, 200]
+
+    ax[0].set_yticks(bins)
 
     ax[0].grid(True)
     ax[1].grid(True)
@@ -141,8 +157,8 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
     ax[0].set_title('DAC')
     ax[1].set_title('Non-DAC')
 
-    ax[0].set_ylim(0, 820)
-    ax[1].set_ylim(0, 820)
+    ax[0].set_ylim(ylim)
+    ax[1].set_ylim(ylim)
 
     ax[0].set_xlim(1830, 2025)
     ax[1].set_xlim(1830, 2025)
@@ -150,7 +166,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'lac_as_built_panel_ratings_hist.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_as_built_panel_ratings_hist.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -182,7 +198,7 @@ def AsBuiltPanelRatingsBar(buildings_ces, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'lac_as_built_panel_ratings_barchart.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_as_built_panel_ratings_barchart.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -263,7 +279,7 @@ def PermitTimeSeries(buildings_ces, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'lac_permit_time_series_plot.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_permit_time_series_plot.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -311,7 +327,7 @@ def PermitCountsMap(buildings_ces, ces4, ladwp, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'lac_permit_geographic_distribution_map.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_permit_geographic_distribution_map.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -365,7 +381,7 @@ def PermitCountsHistAnimation(buildings_ces, figure_dir):
 
     plt.show()
 
-    f = figure_dir + 'la_city_panel_permits_histogram_animation.gif'
+    f = figure_dir + 'ladwp_panel_permits_histogram_animation.gif'
     writergif = animation.PillowWriter(fps=numDataPoints/16)
     line_ani.save(f, writer=writergif)
 
@@ -410,7 +426,7 @@ def PermitVintageYearECDF(buildings_ces, figure_dir):
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_vintage_empirical_cdf_plot.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_vintage_empirical_cdf_plot.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -439,7 +455,7 @@ def ExistingPanelRatingsChangeCountsBar(panel_stats_ces_geo, figure_dir):
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_panel_upgrade_total_counts_barplot.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_panel_upgrade_total_counts_barplot.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -456,66 +472,66 @@ def ExistingPanelRatingsChangeAmpsBox(panel_stats_ces_geo, figure_dir):
         data = panel_stats_ces_geo,
         ax = ax)
 
-    ax.set_ylabel('Change in Median Panel Rating \n(As-built -> Existing) \n[Amps]')
+    ax.set_ylabel('Change in Mean Panel Rating \n(As-built -> Existing) \n[Amps]')
     ax.set_xlabel('DAC Status')
     ax.grid(True)
 
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_panel_upgrade_deltas_boxplots.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_panel_upgrade_deltas_boxplots.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
 #%% Diagnostic Plot of Change Statistics
 
 def ExistingPanelRatingsChangeAmpsScatter(panel_stats_ces_geo, figure_dir):
-    '''Function to generate a scatterplot of the change in the median panel size
+    '''Function to generate a scatterplot of the change in the mean panel size
     from as-built to existing condition by DAC status.'''
 
     fig, ax = plt.subplots(1,1, figsize=(5,5))
 
-    sns.scatterplot(x = 'median_panel_size_as_built',
+    sns.scatterplot(x = 'mean_panel_size_as_built',
         y = 'upgrade_delta_amps',
         hue = 'dac_status',
         data = panel_stats_ces_geo,
         ax = ax,
         alpha = 0.5)
 
-    ax.set_ylabel('Change in Median Panel Rating\n(As-built -> Existing) \n[Amps]')
-    ax.set_xlabel('Median Panel Rating \n (As-built) [Amps]')
+    ax.set_ylabel('Change in Mean Panel Rating\n(As-built -> Existing) \n[Amps]')
+    ax.set_xlabel('Mean Panel Rating \n (As-built) [Amps]')
     ax.grid(True)
 
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_panel_upgrade_deltas_vs_ces_scatterplot.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_panel_upgrade_deltas_vs_ces_scatterplot.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
 #%% Diagnostic Plot of Change Statistics
 
 def ExistingPanelRatingsChangeAmpsHist(panel_stats_ces_geo, figure_dir):
-    '''Function to generate a pairwise histogram of the change in the average panel size
+    '''Function to generate a pairwise histogram of the change in the mean panel size
     from as-built to existing condition by DAC status.'''
 
     fig, ax = plt.subplots(1,1, figsize=(5,5))
 
-    sns.histplot(x = 'median_panel_size_existing',
+    sns.histplot(x = 'mean_panel_size_existing',
         hue = 'dac_status',
         data = panel_stats_ces_geo,
         bins = 30,
         ax = ax)
 
     ax.axvline(200, color = 'r', linestyle = '--', linewidth = 2)
-    ax.set_xlabel('Median Panel Rating \n (Existing) \n[Amps]')
+    ax.set_xlabel('Mean Panel Rating \n (Existing) \n[Amps]')
     ax.set_ylabel('Census Tracts \n[Counts]')
     ax.grid(True)
 
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_panel_upgrade_existing_medians_histplot.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_panel_upgrade_existing_means_histplot.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -535,16 +551,16 @@ def ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir):
     ces4.loc[non_dac_ind].boundary.plot(ax = ax, color = 'tab:blue', linewidth = 0.5)
     ladwp.boundary.plot(ax = ax, edgecolor = 'black', linewidth = 1.5)
 
-    panel_stats_ces_geo.plot(column = 'median_panel_size_existing',
+    panel_stats_ces_geo.plot(column = 'mean_panel_size_existing',
         ax = ax,
         scheme='user_defined',
-        classification_kwds = {'bins' : [30,60,100,125,150,200,300]},
+        classification_kwds = {'bins' : [30,60,100,125,150,200,300,400]},
         k = 10,
         cmap='bone_r',
         legend = True,
-        legend_kwds = {'title': 'Medians Panel Rating\nExisting [Amps]',
+        legend_kwds = {'title': 'Mean Panel Rating\nExisting [Amps]',
                         'loc': 'lower left',
-                        "labels": ["","30-60", "60-100", "100-125", "125-150", "150-200", "200-300"]})
+                        "labels": ["0-30","30-60", "60-100", "100-125", "125-150", "150-200", "200-300", "300-400"]})
 
     ax.set_ylim((-480000,-405000))
     ax.set_xlim((120000,170000))
@@ -553,14 +569,14 @@ def ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir):
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_panel_ratings_existing_geographic_distribution_map.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_panel_ratings_existing_geographic_distribution_map.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
 #%% Generate Change Percentage Plot
 
 def ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, figure_dir):
-    '''Function to plot the percentage change in average panel sizes from
+    '''Function to plot the percentage change in mean panel sizes from
     as-built to existing condition by census tract and DAC status'''
 
     fig, ax = plt.subplots(1,1, figsize = (10,10))
@@ -578,7 +594,7 @@ def ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, figure_di
         cmap = 'bone_r',
         classification_kwds = {'bins' : [10,25,50,75,100,200]},
         legend = True,
-        legend_kwds = {'title': 'Change in Median Panel Rating\nFrom As-Built -> Existing\n[Percent Change]\n',
+        legend_kwds = {'title': 'Change in Mean Panel Rating\nFrom As-Built -> Existing\n[Percent Change]\n',
                         'loc': 'lower left'},
         ax = ax)
 
@@ -589,7 +605,7 @@ def ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, figure_di
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_panel_ratings_delta_geographic_distribution_quiver_map.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_panel_ratings_delta_geographic_distribution_quiver_map.png', bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -633,7 +649,7 @@ def ExistingPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
         cbar_kws = {'label':'Number of Units', 'orientation':'horizontal'},
         vmin=0, vmax=4000)
 
-    ax[0].set_yticks([30,60,100, 125, 150, 200, 225, 300, 400, 600, 800])
+    ax[0].set_yticks([30,60,100, 125, 150, 200, 225, 300, 400, 600, 800, 1000, 1200])
 
     ax[0].grid(True)
     ax[1].grid(True)
@@ -656,6 +672,35 @@ def ExistingPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
     fig.tight_layout()
     fig.patch.set_facecolor('white')
 
-    fig.savefig(figure_dir + 'lac_existing_panel_ratings_hist.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_existing_panel_ratings_hist.png', bbox_inches = 'tight', dpi = 300)
+
+    return
+
+def JointDistributionPlot(buildings_ces, sector, figure_dir):
+
+    buildings_ces['log_building_sqft'] = buildings_ces['building_sqft'].apply(np.log10)
+
+    if sector == 'single_family':
+
+        fig = sns.jointplot(data = buildings_ces,
+            x = 'year_built',
+            y = 'log_building_sqft',
+            hue = 'dac_status',
+            palette = ['tab:blue', 'tab:orange'],
+            hue_order = ['Non-DAC', 'DAC'],
+            alpha = 0.1,
+            marker = '.',
+            linewidth = 0
+            )
+        plt.legend(loc='upper left')
+        plt.xlim(pd.to_datetime([1830, 2025], format = '%Y'))
+        plt.ylim([2.0, 5.0])
+        plt.yticks([2,3,4,5])
+        fig.ax_joint.set_yticklabels(['100', '1,000', '10,000', '100,000'])
+        fig.ax_joint.set_ylabel('Building Size\n($ft^2$)')
+        fig.ax_joint.set_xlabel('Construction Vintage\n(Year)')
+        plt.grid()
+
+        fig.savefig(figure_dir + 'ladwp_single_family_home_size_vintage_jointplot.png', dpi = 500, bbox_inches = 'tight')
 
     return

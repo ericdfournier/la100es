@@ -22,8 +22,10 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
     if sector == 'single_family':
 
         vintage_pre_1883 = buildings_ces['year_built'].dt.year < 1883
-        vintage_1883_1978 = (buildings_ces['year_built'].dt.year >= 1883) & (buildings_ces['year_built'].dt.year < 1978)
-        vintage_post_1978 = buildings_ces['year_built'].dt.year >= 1978
+        vintage_1883_1950 = (buildings_ces['year_built'].dt.year >= 1883) & (buildings_ces['year_built'].dt.year < 1950)
+        vintage_1950_1978 = (buildings_ces['year_built'].dt.year >= 1950) & (buildings_ces['year_built'].dt.year < 1978)
+        vintage_1978_2010 = (buildings_ces['year_built'].dt.year >= 1978) & (buildings_ces['year_built'].dt.year < 2010)
+        vintage_post_2010 = buildings_ces['year_built'].dt.year >= 2010
 
         size_minus_1k = (buildings_ces[size_col] >= 0) & (buildings_ces[size_col] < 1000)
         size_1k_2k = (buildings_ces[size_col] >= 1000) & (buildings_ces[size_col] < 2000)
@@ -36,8 +38,10 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
         size_20k_plus = (buildings_ces[size_col] >= 20000)
 
         vintage_names = [   'vintage_pre_1883',
-                            'vintage_1883_1978',
-                            'vintage_post_1979']
+                            'vintage_1883_1950',
+                            'vintage_1950_1978',
+                            'vintage_1978_2010',
+                            'vintage_post_2010']
 
         size_names = [      'size_minus_1k',
                             'size_1k_2k',
@@ -50,8 +54,10 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
                             'size_20k_plus']
 
         vintage_bins = [    vintage_pre_1883,
-                            vintage_1883_1978,
-                            vintage_post_1978]
+                            vintage_1883_1950,
+                            vintage_1950_1978,
+                            vintage_1978_2010,
+                            vintage_post_2010]
 
         size_bins = [       size_minus_1k,
                             size_1k_2k,
@@ -66,33 +72,51 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
         names = list(map(list, product(vintage_names, size_names)))
         combs = list(map(list, product(vintage_bins, size_bins)))
 
-        panel_sizes = [ 0.,     # [['vintage_pre_1883', 'size_minus_1k'],
-                        0.,     # ['vintage_pre_1883', 'size_1k_2k'],
-                        0.,     # ['vintage_pre_1883', 'size_2k_3k'],
-                        0.,     # ['vintage_pre_1883', 'size_3k_4k'],
-                        0.,     # ['vintage_pre_1883', 'size_4k_5k'],
-                        0.,     # ['vintage_pre_1883', 'size_5k_8k'],
-                        0.,     # ['vintage_pre_1883', 'size_8k_10k']
-                        0.,     # ['vintage_pre_1883', 'size_10k_20k'],
-                        0.,     # ['vintage_pre_1883', 'size_20k_plus'],
-                        30.,         # ['vintage_1883_1978', 'size_minus_1k'],
-                        60.,         # ['vintage_1883_1978', 'size_1k_2k'],
-                        100.,        # ['vintage_1883_1978', 'size_2k_3k'],
-                        125.,        # ['vintage_1883_1978', 'size_3k_4k'],
-                        150.,        # ['vintage_1883_1978', 'size_4k_5k'],
-                        200.,        # ['vintage_1883_1978', 'size_5k_8k'],
-                        300.,        # ['vintage_1883_1978', 'size_8k_10k']
-                        400.,        # ['vintage_1883_1978', 'size_10k_20k'],
-                        600.,        # ['vintage_1883_1978', 'size_20k_plus'],
-                        100.,        # ['vintage_1883_1979', 'size_minus_1k'],
-                        125.,        # ['vintage_post_1979', 'size_1k_2k'],
-                        150.,        # ['vintage_post_1979', 'size_2k_3k'],
-                        200.,        # ['vintage_post_1979', 'size_3k_4k'],
-                        225.,        # ['vintage_post_1979', 'size_4k_5k']
-                        300.,        # ['vintage_post_1979', 'size_5k_8k'],
-                        400.,        # ['vintage_post_1979', 'size_8k_10k']]
-                        600.,        # ['vintage_post_1979', 'size_10k_20k']]
-                        800.]        # ['vintage_post_1979', 'size_20k_plus']]
+        panel_sizes = [ 0.,         # [['vintage_pre_1883', 'size_minus_1k'],
+                        0.,         # ['vintage_pre_1883', 'size_1k_2k'],
+                        0.,         # ['vintage_pre_1883', 'size_2k_3k'],
+                        0.,         # ['vintage_pre_1883', 'size_3k_4k'],
+                        0.,         # ['vintage_pre_1883', 'size_4k_5k'],
+                        0.,         # ['vintage_pre_1883', 'size_5k_8k'],
+                        0.,         # ['vintage_pre_1883', 'size_8k_10k']
+                        0.,         # ['vintage_pre_1883', 'size_10k_20k'],
+                        0.,         # ['vintage_pre_1883', 'size_20k_plus'],
+                        30.,        # ['vintage_1883_1950', 'size_minus_1k'],
+                        40.,        # ['vintage_1883_1950', 'size_1k_2k'],
+                        60.,        # ['vintage_1883_1950', 'size_2k_3k'],
+                        100.,       # ['vintage_1883_1950', 'size_3k_4k'],
+                        125.,       # ['vintage_1883_1950', 'size_4k_5k'],
+                        150.,       # ['vintage_1883_1950', 'size_5k_8k'],
+                        200.,       # ['vintage_1883_1950', 'size_8k_10k']
+                        300.,       # ['vintage_1883_1950', 'size_10k_20k'],
+                        400.,       # ['vintage_1883_1950', 'size_20k_plus'],
+                        30.,        # ['vintage_1950_1978', 'size_minus_1k'],
+                        60.,        # ['vintage_1950_1978', 'size_1k_2k'],
+                        100.,       # ['vintage_1950_1978', 'size_2k_3k'],
+                        125.,       # ['vintage_1950_1978', 'size_3k_4k'],
+                        150.,       # ['vintage_1950_1978', 'size_4k_5k'],
+                        200.,       # ['vintage_1950_1978', 'size_5k_8k'],
+                        300.,       # ['vintage_1950_1978', 'size_8k_10k']
+                        400.,       # ['vintage_1950_1978', 'size_10k_20k'],
+                        600.,       # ['vintage_1950_1978', 'size_20k_plus'],
+                        100.,       # ['vintage_1978_2010', 'size_minus_1k'],
+                        125.,       # ['vintage_1978_2010', 'size_1k_2k'],
+                        150.,       # ['vintage_1978_2010', 'size_2k_3k'],
+                        200.,       # ['vintage_1978_2010', 'size_3k_4k'],
+                        225.,       # ['vintage_1978_2010', 'size_4k_5k']
+                        300.,       # ['vintage_1978_2010', 'size_5k_8k'],
+                        400.,       # ['vintage_1978_2010', 'size_8k_10k']
+                        600.,       # ['vintage_1978_2010', 'size_10k_20k']
+                        800.,       # ['vintage_1978_2010', 'size_20k_plus']
+                        150.,       # ['vintage_post_2010', 'size_minus_1k'],
+                        200.,       # ['vintage_post_2010', 'size_1k_2k'],
+                        225.,       # ['vintage_post_2010', 'size_2k_3k'],
+                        300.,       # ['vintage_post_2010', 'size_3k_4k'],
+                        400.,       # ['vintage_post_2010', 'size_4k_5k']
+                        600.,       # ['vintage_post_2010', 'size_5k_8k'],
+                        800.,       # ['vintage_post_2010', 'size_8k_10k']
+                        1000.,      # ['vintage_post_2010', 'size_10k_20k']
+                        1200.]      # ['vintage_post_2010', 'size_20k_plus']]
 
     elif sector == 'multi_family':
 
@@ -117,7 +141,7 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
         names = vintage_names
         combs = vintage_bins
 
-        panel_sizes = [ 0.,    # 'vintage_pre_1883',
+        panel_sizes = [ 0.,      # 'vintage_pre_1883',
                         40.,     # 'vintage_1883_1950'
                         60.,     # 'vintage_1950_1978'
                         90.,     # 'vintage_1978_2010'
@@ -170,6 +194,7 @@ def AssignExistingFromPermit(buildings_ces, sector):
 
         upgrade_scale = [   0.,
                             30.,
+                            40.,
                             60.,
                             100.,
                             125.,
@@ -180,7 +205,9 @@ def AssignExistingFromPermit(buildings_ces, sector):
                             400.,
                             600.,
                             800.,
-                            1000.]
+                            1000.,
+                            1200.,
+                            1400.]
 
     elif sector == 'multi_family':
 
@@ -301,6 +328,7 @@ def InferExistingFromModel(buildings_ces, sector):
 
         upgrade_scale = [   0.,
                             30.,
+                            40.,
                             60.,
                             100.,
                             125.,
@@ -311,7 +339,9 @@ def InferExistingFromModel(buildings_ces, sector):
                             400.,
                             600.,
                             800.,
-                            1000.]
+                            1000.,
+                            1200.,
+                            1400.]
 
     elif sector == 'multi_family':
 
