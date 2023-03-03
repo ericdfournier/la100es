@@ -38,6 +38,7 @@ panel_stats_ces_geo = utils.ChangeStatistics(mf_buildings_ces, ces4)
 plot.CountsMap(mf_buildings, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsMap(mf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsHist(mf_buildings_ces, ces4, ladwp, sector, figure_dir)
+plot.JointDistributionPlot(mf_buildings_ces, sector, figure_dir)
 
 #%%
 plot.AsBuiltPanelRatingsBar(mf_buildings_ces, figure_dir)
@@ -61,7 +62,8 @@ utils.ExistingPanelRatingsDiagnostics(buildings_ces)
 
 #%% Process and Output to File
 
-final = utils.SortColumns(buildings_ces, sector)
+final = utils.SortColumns(mf_buildings_ces, sector)
 ts = str(datetime.datetime.now())
+final.to_pickle(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis.pk')
 final.to_csv(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.csv')
 final.to_json(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.geojson')

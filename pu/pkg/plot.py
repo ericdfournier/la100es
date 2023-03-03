@@ -102,7 +102,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
     '''Paired DAC / Non-DAC 2D histogram of panel sizes by building
     construction vintage years'''
 
-    fig, ax = plt.subplots(1,2,figsize = (10,8), sharey = True)
+    fig, ax = plt.subplots(1,2,figsize = (10,10), sharey = True)
 
     dac_ind = buildings_ces['dac_status'] == 'DAC'
     non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
@@ -137,7 +137,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
         vmin=0, vmax=4000)
 
     if sector == 'single_family':
-        ylim = [0, 820]
+        ylim = [0, 1220]
         bins = [30, 60, 100, 125, 150, 200, 225, 300, 400, 600, 800, 1000, 1200]
     elif sector == 'multi_family':
         ylim = [0, 220]
@@ -213,6 +213,15 @@ def PermitTimeSeries(buildings_ces, figure_dir):
     permit_ts = permit_ts.reset_index()
     permit_ts = permit_ts.rename(columns = {'apn': 'permit_count'})
 
+    dac_vals = permit_ts['dac_status'] == 'DAC'
+    non_dac_vals = permit_ts['dac_status'] == 'Non-DAC'
+
+    print('DAC Average Annual Permit Counts: {}'.format(permit_ts.loc[dac_vals,'permit_count'].mean()))
+    print('DAC Average Annual Rates of Change: {}'.format(permit_ts.loc[dac_vals,'permit_count'].pct_change().mean()))
+    print('\n')
+    print('Non-DAC Average Annual Permit Counts: {}'.format(permit_ts.loc[dac_vals,'permit_count'].mean()))
+    print('Non-DAC Average Annual Rates of Change: {}'.format(permit_ts.loc[non_dac_vals,'permit_count'].pct_change().mean()))
+
     # Generate Cumsum of Permits by DAC Status
 
     permit_cs = buildings_ces.loc[upgrade_ind].groupby([pd.Grouper(key='permit_issue_date', axis=0, freq='1Y'), 'dac_status'])['apn'].agg('count')
@@ -222,6 +231,16 @@ def PermitTimeSeries(buildings_ces, figure_dir):
     permit_cs = pd.concat([dac_vals, non_dac_vals], axis = 0).sort_index()
     permit_cs = permit_cs.reset_index()
     permit_cs = permit_cs.rename(columns = {'apn': 'permit_count'})
+
+    dac_vals = permit_cs['dac_status'] == 'DAC'
+    non_dac_vals = permit_cs['dac_status'] == 'Non-DAC'
+
+    print('DAC Average Annual Permit Counts: {}'.format(permit_cs.loc[dac_vals,'permit_count'].mean()))
+    print('DAC Average Annual Rates of Change: {}'.format(permit_cs.loc[dac_vals,'permit_count'].pct_change().mean()))
+    print('\n')
+    print('Non-DAC Average Annual Permit Counts: {}'.format(permit_cs.loc[dac_vals,'permit_count'].mean()))
+    print('Non-DAC Average Annual Rates of Change: {}'.format(permit_cs.loc[non_dac_vals,'permit_count'].pct_change().mean()))
+
 
     # Plot Time Series of Permit Counts and Cumulative Sums
 
@@ -624,7 +643,7 @@ def ExistingPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
     dac_sample['year_built_int'] = dac_sample['year_built'].dt.year
     non_dac_sample['year_built_int'] = non_dac_sample['year_built'].dt.year
 
-    fig, ax = plt.subplots(1,2,figsize = (10,8), sharey = True, sharex = True)
+    fig, ax = plt.subplots(1,2,figsize = (10,10), sharey = True, sharex = True)
 
     sns.histplot(x = 'year_built_int',
         y = 'panel_size_existing',
@@ -663,8 +682,8 @@ def ExistingPanelRatingsHist(buildings_ces, ces4, ladwp, figure_dir):
     ax[0].set_title('DAC')
     ax[1].set_title('Non-DAC')
 
-    ax[0].set_ylim(0, 820)
-    ax[1].set_ylim(0, 820)
+    ax[0].set_ylim(0, 1220)
+    ax[1].set_ylim(0, 1220)
 
     ax[0].set_xlim(1830, 2025)
     ax[1].set_xlim(1830, 2025)
@@ -701,6 +720,58 @@ def JointDistributionPlot(buildings_ces, sector, figure_dir):
         fig.ax_joint.set_xlabel('Construction Vintage\n(Year)')
         plt.grid()
 
-        fig.savefig(figure_dir + 'ladwp_single_family_home_size_vintage_jointplot.png', dpi = 500, bbox_inches = 'tight')
+    elif sector == 'multi_family':
+
+        fig = sns.jointplot(data = buildings_ces,
+            x = 'year_built',
+            y = 'log_building_sqft',
+            hue = 'dac_status',
+            palette = ['tab:blue', 'tab:orange'],
+            hue_order = ['Non-DAC', 'DAC'],
+            alpha = 0.1,
+            marker = '.',
+            linewidth = 0
+            )
+        plt.legend(loc='upper left')
+        plt.xlim(pd.to_datetime([1860, 2025], format = '%Y'))
+        plt.ylim([2.0, 6.0])
+        plt.yticks([2,3,4,5,6])
+        fig.ax_joint.set_yticklabels(['100', '1,000', '10,000', '100,000','1,000,000'])
+        fig.ax_joint.set_ylabel('Building Size\n($ft^2$)')
+        fig.ax_joint.set_xlabel('Construction Vintage\n(Year)')
+        plt.grid()
+
+    fig.savefig(figure_dir + 'ladwp_{}_home_size_vintage_jointplot.png'.format(sector), dpi = 500, bbox_inches = 'tight')
+
+    return
+
+#%% Plot Existing Panel Stats
+
+def ExistingPanelRatingsBar(buildings_ces, sector, figure_dir):
+    '''Simple barplot of existing panel ratings separated by DAC status'''
+
+    # Compute counts
+
+    counts = buildings_ces.groupby('panel_size_existing')['apn'].agg('count')
+    dac_counts = buildings_ces.groupby(['dac_status', 'panel_size_existing'])['apn'].agg('count')
+    dac_counts = dac_counts.unstack(level= 0)
+    dac_counts.index = dac_counts.index.astype(int)
+
+    # Plot Counts
+    fig, ax = plt.subplots(1,1, figsize = (5,5))
+
+    dac_counts.plot.barh(ax = ax, color = ['tab:orange', 'tab:blue'])
+
+    ax.grid(True)
+    ax.set_ylabel('Existing Panel Rating \n[Amps]')
+    ax.set_xlabel('Number of Units')
+    plt.xticks(rotation = 45)
+
+    ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+
+    fig.patch.set_facecolor('white')
+    fig.tight_layout()
+
+    fig.savefig(figure_dir + 'ladwp_existing_panel_ratings_barchart.png', bbox_inches = 'tight', dpi = 300)
 
     return
