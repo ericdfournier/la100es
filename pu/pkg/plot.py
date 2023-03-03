@@ -122,7 +122,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
         legend = True,
         label = 'DAC',
         cbar = True,
-        cbar_kws = {'label':'Number of Units', 'orientation':'horizontal'},
+        cbar_kws = {'label':'Number of Properties', 'orientation':'horizontal'},
         vmin=0, vmax=4000)
     sns.histplot(x = 'year_built_int',
         y = 'panel_size_as_built',
@@ -133,7 +133,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
         legend = True,
         label = 'Non-DAC',
         cbar = True,
-        cbar_kws = {'label':'Number of Units', 'orientation':'horizontal'},
+        cbar_kws = {'label':'Number of Properties', 'orientation':'horizontal'},
         vmin=0, vmax=4000)
 
     if sector == 'single_family':
@@ -172,7 +172,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
 
 #%% Plot As-Built Panel Stats
 
-def AsBuiltPanelRatingsBar(buildings_ces, figure_dir):
+def AsBuiltPanelRatingsBar(buildings_ces, sector, figure_dir):
     '''Simple barplot of as-built panel ratings separated by DAC status'''
 
     # Compute counts
@@ -190,7 +190,7 @@ def AsBuiltPanelRatingsBar(buildings_ces, figure_dir):
 
     ax.grid(True)
     ax.set_ylabel('As-Built Panel Rating \n[Amps]')
-    ax.set_xlabel('Number of Units')
+    ax.set_xlabel('Number of Properties')
     plt.xticks(rotation = 45)
 
     ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
@@ -198,11 +198,11 @@ def AsBuiltPanelRatingsBar(buildings_ces, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'ladwp_as_built_panel_ratings_barchart.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_{}_as_built_panel_ratings_barchart.png'.format(sector), bbox_inches = 'tight', dpi = 300)
 
     return
 
-def PermitTimeSeries(buildings_ces, figure_dir):
+def PermitTimeSeries(buildings_ces, sector, figure_dir):
     '''Plot annual total and cumulative total panel upgrade permits
     separated by DAC status'''
 
@@ -240,7 +240,6 @@ def PermitTimeSeries(buildings_ces, figure_dir):
     print('\n')
     print('Non-DAC Average Annual Permit Counts: {}'.format(permit_cs.loc[dac_vals,'permit_count'].mean()))
     print('Non-DAC Average Annual Rates of Change: {}'.format(permit_cs.loc[non_dac_vals,'permit_count'].pct_change().mean()))
-
 
     # Plot Time Series of Permit Counts and Cumulative Sums
 
@@ -298,13 +297,13 @@ def PermitTimeSeries(buildings_ces, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'ladwp_permit_time_series_plot.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_{}_permit_time_series_plot.png'.format(sector), bbox_inches = 'tight', dpi = 300)
 
     return
 
 #%% Function to Map the Cumulative Total Number of Permits by Tract
 
-def PermitCountsMap(buildings_ces, ces4, ladwp, figure_dir):
+def PermitCountsMap(buildings_ces, ces4, ladwp, sector, figure_dir):
     '''Function to map the cumulative total number of buildings with
     panel upgrade pemits by census tract and DAC status'''
 
@@ -328,16 +327,25 @@ def PermitCountsMap(buildings_ces, ces4, ladwp, figure_dir):
     ces4.loc[non_dac_ind].boundary.plot(ax = ax, color = 'tab:blue', linewidth = 0.5)
     ladwp.boundary.plot(ax = ax, edgecolor = 'black', linewidth = 1.5)
 
+    if sector == 'single_family':
+        title = 'Single Family Properties\nPermitted Panel Upgrades\n[Counts]\n'
+        bins = [100,250,500,750,1000,1500,2000]
+        labels = ["1-100", "100-250", "250-500", "500-750","750-1000", "1000-1500", "1500-2000","2000+"]
+    elif sector == 'multi_family':
+        title = 'Multi-Family Properties\nPermitted Panel Upgrades\n[Counts]\n'
+        bins = [100,250,500,750,1000,1500,2000]
+        labels = ["1-100", "100-250", "250-500", "500-750","750-1000", "1000-1500", "1500+"]
+
     permits_per_tract_ces.plot(ax = ax,
         column = 'apn',
         k = 7,
         cmap = 'bone_r',
         scheme = 'user_defined',
-        classification_kwds = {'bins' : [100,250,500,750,1000,1500,2000]},
+        classification_kwds = {'bins' : bins},
         legend = True,
-        legend_kwds = {'title': 'Single Family Homes\nPermitted Panel Upgrades\n[Counts]\n',
+        legend_kwds = {'title': title,
                         'loc': 'lower left',
-                        "labels": ["1-100", "100-250", "250-500", "500-750","750-1000", "1000-1500", "1500-2000","2000-3160"]})
+                        "labels": labels})
 
     ax.set_ylim((-480000,-405000))
     ax.set_xlim((120000,170000))
@@ -346,7 +354,7 @@ def PermitCountsMap(buildings_ces, ces4, ladwp, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'ladwp_permit_geographic_distribution_map.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_{}_permit_geographic_distribution_map.png'.format(sector), bbox_inches = 'tight', dpi = 300)
 
     return
 

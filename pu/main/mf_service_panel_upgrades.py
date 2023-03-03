@@ -39,12 +39,14 @@ plot.CountsMap(mf_buildings, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsMap(mf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsHist(mf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.JointDistributionPlot(mf_buildings_ces, sector, figure_dir)
+plot.AsBuiltPanelRatingsBar(mf_buildings_ces, sector, figure_dir)
+plot.PermitTimeSeries(mf_buildings_ces, sector, figure_dir)
+plot.PermitCountsMap(mf_buildings_ces, ces4, ladwp, sector, figure_dir)
+plot.PermitCountsHistAnimation(mf_buildings_ces, figure_dir)
+
+#TODO: Continue to modify plot functions below for multi-sector support
 
 #%%
-plot.AsBuiltPanelRatingsBar(mf_buildings_ces, figure_dir)
-plot.PermitTimeSeries(mf_buildings_ces, figure_dir)
-plot.PermitCountsMap(mf_buildings_ces, ces4, ladwp, figure_dir)
-plot.PermitCountsHistAnimation(mf_buildings_ces, figure_dir)
 plot.PermitVintageYearECDF(mf_buildings_ces, figure_dir)
 plot.ExistingPanelRatingsChangeCountsBar(panel_stats_ces_geo, figure_dir)
 plot.ExistingPanelRatingsChangeAmpsBox(panel_stats_ces_geo, figure_dir)
