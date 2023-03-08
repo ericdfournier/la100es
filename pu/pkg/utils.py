@@ -193,7 +193,7 @@ def PanelUpgradeDiagnostics(buildings_ces):
 
 #%% Print Capacity Stats
 
-def ExistingPanelRatingsDiagnostics(buildings_ces):
+def ExistingPanelRatingsDiagnostics(buildings_ces, sector):
     '''Function to print diagnostic information about the rated capacity of
     existing panels'''
 
@@ -206,9 +206,14 @@ def ExistingPanelRatingsDiagnostics(buildings_ces):
     dac_sample_stats = dac_sample.groupby(['panel_size_existing'])['census_tract'].agg('count')
     non_dac_sample_stats = non_dac_sample.groupby(['panel_size_existing'])['census_tract'].agg('count')
 
-    insufficient = [30.0, 40.0, 60.0]
-    uncertain = [100.0, 125.0, 150.0]
-    sufficient = [200.0, 225.0, 300.0, 400.0, 600.0, 800.0, 1000.0, 1200.0]
+    if sector == 'single_family':
+        insufficient = [30.0, 40.0, 60.0]
+        uncertain = [100.0, 125.0, 150.0]
+        sufficient = [200.0, 225.0, 300.0, 400.0, 600.0, 800.0, 1000.0, 1200.0]
+    elif sector == 'multi_family':
+        insufficient = [40.0, 60.0]
+        uncertain = [90.0, 100.0, 125.0]
+        sufficient = [150.0, 200.0]
 
     print('DAC Existing Capacity Stats:')
 

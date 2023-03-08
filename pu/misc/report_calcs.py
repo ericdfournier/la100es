@@ -42,7 +42,7 @@ mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 202
 test = sf_data.groupby(['dac_status', 'panel_size_existing'])['panel_size_existing'].agg('count')
 test.to_csv('/Users/edf/Desktop/test.csv')
 
-# %% SF Plot
+# %% SF Plot Data
 
 sf_data['building_sqft_log10'] = np.log10(sf_data['building_sqft'])
 sf_data['existing_amps_per_sqft_log10'] = np.log10(sf_data['panel_size_existing'] / sf_data['building_sqft'])
@@ -145,6 +145,23 @@ y = dacs.loc[upgrade_ind, 'existing_amps_per_sqft_log10']
 
 a, b = np.polyfit(x, y, 1)
 
+non_upgrade_ind = dacs['permitted_panel_upgrade'] == False
+x_hat = dacs.loc[non_upgrade_ind, 'building_sqft_log10']
+z = dacs.loc[non_upgrade_ind, 'building_sqft']
+
+def dac_fn(a, b, x_hat, z):
+
+    y_hat = (a * x_hat) + b
+    out = (np.power(10, y_hat) * z)
+
+    return out
+
+out = dac_fn(a, b, x_hat, z)
+
+dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] = out
+deficient_ind = dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] > dacs.loc[non_upgrade_ind, 'panel_size_existing']
+upgrade_ratio = deficient_ind.sum() / dacs.shape[0]
+
 #%% Non-DAC Case
 
 upgrade_ind = non_dacs['permitted_panel_upgrade'] == True
@@ -152,6 +169,23 @@ x = non_dacs.loc[upgrade_ind, 'building_sqft_log10']
 y = non_dacs.loc[upgrade_ind, 'existing_amps_per_sqft_log10']
 
 a, b = np.polyfit(x, y, 1)
+
+non_upgrade_ind = non_dacs['permitted_panel_upgrade'] == False
+x_hat = non_dacs.loc[non_upgrade_ind, 'building_sqft_log10']
+z = non_dacs.loc[non_upgrade_ind, 'building_sqft']
+
+def non_dac_fn(a, b, x_hat, z):
+
+    y_hat = (a * x_hat) + b
+    out = (np.power(10, y_hat) * z)
+
+    return out
+
+out = non_dac_fn(a, b, x_hat, z)
+
+non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] = out
+deficient_ind = non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] > non_dacs.loc[non_upgrade_ind, 'panel_size_existing']
+upgrade_ratio = deficient_ind.sum() / non_dacs.shape[0]
 
 #%% MF Plot
 

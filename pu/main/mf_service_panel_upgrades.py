@@ -43,24 +43,21 @@ plot.AsBuiltPanelRatingsBar(mf_buildings_ces, sector, figure_dir)
 plot.PermitTimeSeries(mf_buildings_ces, sector, figure_dir)
 plot.PermitCountsMap(mf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.PermitCountsHistAnimation(mf_buildings_ces, figure_dir)
-
-#TODO: Continue to modify plot functions below for multi-sector support
-
-#%%
-plot.PermitVintageYearECDF(mf_buildings_ces, figure_dir)
-plot.ExistingPanelRatingsChangeCountsBar(panel_stats_ces_geo, figure_dir)
-plot.ExistingPanelRatingsChangeAmpsBox(panel_stats_ces_geo, figure_dir)
-plot.ExistingPanelRatingsChangeAmpsScatter(panel_stats_ces_geo, figure_dir)
-plot.ExistingPanelRatingsChangeAmpsHist(panel_stats_ces_geo, figure_dir)
-plot.ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
-plot.ExistingPanelRatingsHist(mf_buildings_ces, ces4, ladwp, figure_dir)
-plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
+plot.PermitVintageYearECDF(mf_buildings_ces, sector, figure_dir)
+plot.ExistingPanelRatingsBar(mf_buildings_ces, sector, figure_dir)
+plot.ExistingPanelRatingsChangeCountsBar(panel_stats_ces_geo, sector, figure_dir)
+plot.ExistingPanelRatingsChangeAmpsBox(panel_stats_ces_geo, sector, figure_dir)
+plot.ExistingPanelRatingsChangeAmpsScatter(panel_stats_ces_geo, sector, figure_dir)
+plot.ExistingPanelRatingsChangeAmpsHist(panel_stats_ces_geo, sector, figure_dir)
+plot.ExistingPanelRatingsHist(mf_buildings_ces, ces4, ladwp, sector, figure_dir)
+#plot.ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
+plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
 
 #%% Print Diagnostics
 
-utils.AsBuiltPanelRatingsDiagnostics(buildings_ces, sector)
-utils.PanelUpgradeDiagnostics(buildings_ces)
-utils.ExistingPanelRatingsDiagnostics(buildings_ces)
+utils.AsBuiltPanelRatingsDiagnostics(mf_buildings_ces, sector)
+utils.PanelUpgradeDiagnostics(mf_buildings_ces)
+utils.ExistingPanelRatingsDiagnostics(mf_buildings_ces, sector)
 
 #%% Process and Output to File
 

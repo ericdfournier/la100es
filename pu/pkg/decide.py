@@ -168,29 +168,29 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
 def AssignExistingFromPermit(buildings_ces, sector):
     '''Use work description from permit data to assign existing panel rating'''
 
-    # Find Locations with Upgrades of Different Size
-
-    pu_100 = (buildings_ces['permit_description'].str.contains(' 100')) | (buildings_ces['permit_description'].str.startswith('100'))
-    pu_125 = (buildings_ces['permit_description'].str.contains(' 125')) | (buildings_ces['permit_description'].str.startswith('120'))
-    pu_150 = (buildings_ces['permit_description'].str.contains(' 150')) | (buildings_ces['permit_description'].str.startswith('150'))
-    pu_200 = (buildings_ces['permit_description'].str.contains(' 200')) | (buildings_ces['permit_description'].str.startswith('200'))
-    pu_225 = (buildings_ces['permit_description'].str.contains(' 225')) | (buildings_ces['permit_description'].str.startswith('225'))
-    pu_300 = (buildings_ces['permit_description'].str.contains(' 300')) | (buildings_ces['permit_description'].str.startswith('300'))
-    pu_400 = (buildings_ces['permit_description'].str.contains(' 400')) | (buildings_ces['permit_description'].str.startswith('400'))
-    pu_600 = (buildings_ces['permit_description'].str.contains(' 600')) | (buildings_ces['permit_description'].str.startswith('600'))
-
-    pu_solar = (buildings_ces['permit_description'].str.contains(' solar', case = False)) | (buildings_ces['permit_description'].str.contains(' pv', case = False))  | (buildings_ces['permit_description'].str.contains('photovoltaic', case = False))
-    pu_ev = (buildings_ces['permit_description'].str.contains(' ev', case = False)) | (buildings_ces['permit_description'].str.contains(' charger', case = False))
-    pu_ac = (buildings_ces['permit_description'].str.contains(' ac', case = False)) | (buildings_ces['permit_description'].str.contains(" a/c", case = False))
-
-    pu_any = buildings_ces['panel_related_permit'] == True
-    pu_other = pu_any & ~(pu_100 | pu_125 | pu_150 | pu_200 | pu_225 | pu_300 | pu_400 | pu_600)
-
     # Peform Filtering Assignment
 
     buildings_ces['panel_size_existing'] = buildings_ces['panel_size_as_built']
 
     if sector == 'single_family':
+
+        # Find Locations with Upgrades of Different Size
+
+        pu_100 = (buildings_ces['permit_description'].str.contains(' 100')) | (buildings_ces['permit_description'].str.startswith('100'))
+        pu_125 = (buildings_ces['permit_description'].str.contains(' 125')) | (buildings_ces['permit_description'].str.startswith('120'))
+        pu_150 = (buildings_ces['permit_description'].str.contains(' 150')) | (buildings_ces['permit_description'].str.startswith('150'))
+        pu_200 = (buildings_ces['permit_description'].str.contains(' 200')) | (buildings_ces['permit_description'].str.startswith('200'))
+        pu_225 = (buildings_ces['permit_description'].str.contains(' 225')) | (buildings_ces['permit_description'].str.startswith('225'))
+        pu_300 = (buildings_ces['permit_description'].str.contains(' 300')) | (buildings_ces['permit_description'].str.startswith('300'))
+        pu_400 = (buildings_ces['permit_description'].str.contains(' 400')) | (buildings_ces['permit_description'].str.startswith('400'))
+        pu_600 = (buildings_ces['permit_description'].str.contains(' 600')) | (buildings_ces['permit_description'].str.startswith('600'))
+
+        pu_solar = (buildings_ces['permit_description'].str.contains(' solar', case = False)) | (buildings_ces['permit_description'].str.contains(' pv', case = False))  | (buildings_ces['permit_description'].str.contains('photovoltaic', case = False))
+        pu_ev = (buildings_ces['permit_description'].str.contains(' ev', case = False)) | (buildings_ces['permit_description'].str.contains(' charger', case = False))
+        pu_ac = (buildings_ces['permit_description'].str.contains(' ac', case = False)) | (buildings_ces['permit_description'].str.contains(" a/c", case = False))
+
+        pu_any = buildings_ces['panel_related_permit'] == True
+        pu_other = pu_any & ~(pu_100 | pu_125 | pu_150 | pu_200 | pu_225 | pu_300 | pu_400 | pu_600)
 
         upgrade_scale = [   0.,
                             30.,
@@ -211,6 +211,20 @@ def AssignExistingFromPermit(buildings_ces, sector):
 
     elif sector == 'multi_family':
 
+        # Find Locations with Upgrades of Different Size
+
+        pu_100 = (buildings_ces['permit_description'].str.contains(' 100')) | (buildings_ces['permit_description'].str.startswith('100'))
+        pu_125 = (buildings_ces['permit_description'].str.contains(' 125')) | (buildings_ces['permit_description'].str.startswith('120'))
+        pu_150 = (buildings_ces['permit_description'].str.contains(' 150')) | (buildings_ces['permit_description'].str.startswith('150'))
+        pu_200 = (buildings_ces['permit_description'].str.contains(' 200')) | (buildings_ces['permit_description'].str.startswith('200'))
+
+        pu_solar = (buildings_ces['permit_description'].str.contains(' solar', case = False)) | (buildings_ces['permit_description'].str.contains(' pv', case = False))  | (buildings_ces['permit_description'].str.contains('photovoltaic', case = False))
+        pu_ev = (buildings_ces['permit_description'].str.contains(' ev', case = False)) | (buildings_ces['permit_description'].str.contains(' charger', case = False))
+        pu_ac = (buildings_ces['permit_description'].str.contains(' ac', case = False)) | (buildings_ces['permit_description'].str.contains(" a/c", case = False))
+
+        pu_any = buildings_ces['panel_related_permit'] == True
+        pu_other = pu_any & ~(pu_100 | pu_125 | pu_150 | pu_200 )
+
         upgrade_scale = [   0.,
                             40.,
                             60.,
@@ -222,11 +236,7 @@ def AssignExistingFromPermit(buildings_ces, sector):
     ind_dict = {100.:pu_100,
                 125.:pu_125,
                 150.:pu_150,
-                200.:pu_200,
-                225.:pu_225,
-                300.:pu_300,
-                400.:pu_400,
-                600.:pu_600}
+                200.:pu_200}
 
     buildings_ces['permitted_panel_upgrade'] = False
 
