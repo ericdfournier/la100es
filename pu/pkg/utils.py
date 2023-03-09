@@ -71,17 +71,17 @@ def AsBuiltPanelRatingsDiagnostics(buildings_ces, sector):
 
         print('DAC As-Built Capacity Stats:')
         total = dac_sample['apn'].count()
-        print('<60 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] < 60,'apn'].count() / total * 100.0))
-        print('>=60 & <100 Amps: {:.2f}%'.format(dac_sample.loc[(dac_sample['panel_size_as_built'] >= 60) & (dac_sample['panel_size_as_built'] < 100),'apn'].count() / total * 100.0))
-        print('>=100 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] >= 100,'apn'].count() / total * 100.0))
+        print('<90 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] < 90,'apn'].count() / total * 100.0))
+        print('>=90 & <100 Amps: {:.2f}%'.format(dac_sample.loc[(dac_sample['panel_size_as_built'] >= 90) & (dac_sample['panel_size_as_built'] < 150),'apn'].count() / total * 100.0))
+        print('>=150 Amps: {:.2f}%'.format(dac_sample.loc[dac_sample['panel_size_as_built'] >= 150,'apn'].count() / total * 100.0))
 
         print('\n')
 
         print('Non-DAC As-Built Capacity Stats:')
         total = non_dac_sample['apn'].count()
-        print('<60 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] < 60,'apn'].count() / total * 100.0))
-        print('>=60 & <100 Amps: {:.2f}%'.format(non_dac_sample.loc[(non_dac_sample['panel_size_as_built'] >= 60) & (non_dac_sample['panel_size_as_built'] < 100),'apn'].count() / total * 100.0))
-        print('>=100 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] >= 100,'apn'].count() / total * 100.0))
+        print('<90 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] < 90,'apn'].count() / total * 100.0))
+        print('>=90 & <150 Amps: {:.2f}%'.format(non_dac_sample.loc[(non_dac_sample['panel_size_as_built'] >= 90) & (non_dac_sample['panel_size_as_built'] < 150),'apn'].count() / total * 100.0))
+        print('>=150 Amps: {:.2f}%'.format(non_dac_sample.loc[non_dac_sample['panel_size_as_built'] >= 150,'apn'].count() / total * 100.0))
 
         print('\n')
 
@@ -207,29 +207,48 @@ def ExistingPanelRatingsDiagnostics(buildings_ces, sector):
     non_dac_sample_stats = non_dac_sample.groupby(['panel_size_existing'])['census_tract'].agg('count')
 
     if sector == 'single_family':
+
         insufficient = [30.0, 40.0, 60.0]
         uncertain = [100.0, 125.0, 150.0]
         sufficient = [200.0, 225.0, 300.0, 400.0, 600.0, 800.0, 1000.0, 1200.0]
+
+        print('DAC Existing Capacity Stats:')
+
+        print('<100 Amps: {:.2f}%'.format(dac_sample_stats[insufficient].sum() / dac_sample.shape[0] * 100))
+        print('>=100 : <200 Amps: {:.2f}%'.format(dac_sample_stats[uncertain].sum() / dac_sample.shape[0] * 100))
+        print('>=200 Amps: {:.2f}%'.format(dac_sample_stats[sufficient].sum() / dac_sample.shape[0] * 100))
+
+        print('\n')
+
+        print('Non-DAC Existing Capacity Stats:')
+
+        print('<100 Amps: {:.2f}%'.format(non_dac_sample_stats[insufficient].sum() / non_dac_sample.shape[0] * 100))
+        print('>=100 : <200 Amps: {:.2f}%'.format(non_dac_sample_stats[uncertain].sum() / non_dac_sample.shape[0] * 100))
+        print('>=200 Amps: {:.2f}%'.format(non_dac_sample_stats[sufficient].sum() / non_dac_sample.shape[0] * 100))
+
+        print('\n')
+
     elif sector == 'multi_family':
+
         insufficient = [40.0, 60.0]
         uncertain = [90.0, 100.0, 125.0]
         sufficient = [150.0, 200.0]
 
-    print('DAC Existing Capacity Stats:')
+        print('DAC Existing Capacity Stats:')
 
-    print('<100 Amps: {:.2f}%'.format(dac_sample_stats[insufficient].sum() / dac_sample.shape[0] * 100))
-    print('>=100 : <200 Amps: {:.2f}%'.format(dac_sample_stats[uncertain].sum() / dac_sample.shape[0] * 100))
-    print('>=200 Amps: {:.2f}%'.format(dac_sample_stats[sufficient].sum() / dac_sample.shape[0] * 100))
+        print('<90 Amps: {:.2f}%'.format(dac_sample_stats[insufficient].sum() / dac_sample.shape[0] * 100))
+        print('>=90 : <150 Amps: {:.2f}%'.format(dac_sample_stats[uncertain].sum() / dac_sample.shape[0] * 100))
+        print('>=150 Amps: {:.2f}%'.format(dac_sample_stats[sufficient].sum() / dac_sample.shape[0] * 100))
 
-    print('\n')
+        print('\n')
 
-    print('Non-DAC Existing Capacity Stats:')
+        print('Non-DAC Existing Capacity Stats:')
 
-    print('<100 Amps: {:.2f}%'.format(non_dac_sample_stats[insufficient].sum() / non_dac_sample.shape[0] * 100))
-    print('>=100 : <200 Amps: {:.2f}%'.format(non_dac_sample_stats[uncertain].sum() / non_dac_sample.shape[0] * 100))
-    print('>=200 Amps: {:.2f}%'.format(non_dac_sample_stats[sufficient].sum() / non_dac_sample.shape[0] * 100))
+        print('<90 Amps: {:.2f}%'.format(non_dac_sample_stats[insufficient].sum() / non_dac_sample.shape[0] * 100))
+        print('>=90 : <150 Amps: {:.2f}%'.format(non_dac_sample_stats[uncertain].sum() / non_dac_sample.shape[0] * 100))
+        print('>=150 Amps: {:.2f}%'.format(non_dac_sample_stats[sufficient].sum() / non_dac_sample.shape[0] * 100))
 
-    print('\n')
+        print('\n')
 
     return
 

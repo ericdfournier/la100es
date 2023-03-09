@@ -120,10 +120,12 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
         ylim = [0, 1220]
         yticks = [30, 60, 100, 125, 150, 200, 225, 300, 400, 600, 800, 1000, 1200]
         bins = 80
+        ylabel = 'As-Built Panel Rating \n[Amps]'
     elif sector == 'multi_family':
         ylim = [0, 220]
         yticks = [30, 40, 60, 90, 100, 125, 150, 200]
         bins = 40
+        ylabel = 'Average As-Built Load Center Rating Per Unit\n[Amps]'
 
     sns.histplot(x = 'year_built_int',
         y = 'panel_size_as_built',
@@ -153,7 +155,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
     ax[0].grid(True)
     ax[1].grid(True)
 
-    ax[0].set_ylabel('As-Built Panel Rating \n[Amps]')
+    ax[0].set_ylabel(ylabel)
     ax[1].set_ylabel('')
 
     ax[0].set_xlabel('Vintage \n[Year]')
@@ -171,7 +173,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
     fig.patch.set_facecolor('white')
     fig.tight_layout()
 
-    fig.savefig(figure_dir + 'ladwp_as_built_panel_ratings_hist.png', bbox_inches = 'tight', dpi = 300)
+    fig.savefig(figure_dir + 'ladwp_{}_as_built_panel_ratings_hist.png'.format(sector), bbox_inches = 'tight', dpi = 300)
 
     return
 
@@ -182,20 +184,28 @@ def AsBuiltPanelRatingsBar(buildings_ces, sector, figure_dir):
 
     # Compute counts
 
-    counts = buildings_ces.groupby('panel_size_as_built')['apn'].agg('count')
-    dac_counts = buildings_ces.groupby(['dac_status', 'panel_size_as_built'])['apn'].agg('count')
-    dac_counts = dac_counts.unstack(level= 0)
-    dac_counts.index = dac_counts.index.astype(int)
+    if sector == 'single_family':
+        counts = buildings_ces.groupby(['dac_status', 'panel_size_as_built'])['apn'].agg('count')
+        counts = counts.unstack(level= 0)
+        counts.index = counts.index.astype(int)
+        ylabel = 'As-Built Panel Rating \n[Amps]'
+        xlabel = 'Number of Properties'
+    elif sector == 'multi_family':
+        counts = buildings_ces.groupby(['dac_status', 'panel_size_as_built'])['units'].agg('sum')
+        counts = counts.unstack(level= 0)
+        counts.index = counts.index.astype(int)
+        ylabel = 'Average As-Built Load Center Rating per Unit \n[Amps]'
+        xlabel = 'Number of Units'
 
     # Plot Counts
 
     fig, ax = plt.subplots(1,1, figsize = (5,5))
 
-    dac_counts.plot.barh(ax = ax, color = ['tab:orange', 'tab:blue'])
+    counts.plot.barh(ax = ax, color = ['tab:orange', 'tab:blue'])
 
     ax.grid(True)
-    ax.set_ylabel('As-Built Panel Rating \n[Amps]')
-    ax.set_xlabel('Number of Properties')
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel)
     plt.xticks(rotation = 45)
 
     ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))

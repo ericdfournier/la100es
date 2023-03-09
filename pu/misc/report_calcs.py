@@ -39,7 +39,7 @@ mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 202
 
 #%%
 
-test = sf_data.groupby(['dac_status', 'panel_size_existing'])['panel_size_existing'].agg('count')
+test = mf_data.groupby(['dac_status', 'panel_size_existing'])['panel_size_existing'].agg('count')
 test.to_csv('/Users/edf/Desktop/test.csv')
 
 # %% SF Plot Data

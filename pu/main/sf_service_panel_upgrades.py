@@ -40,22 +40,22 @@ plot.AsBuiltPanelRatingsHist(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsBar(sf_buildings_ces, sector, figure_dir)
 plot.PermitTimeSeries(sf_buildings_ces, sector, figure_dir)
 plot.PermitCountsMap(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
-plot.PermitCountsHistAnimation(sf_buildings_ces, sector, figure_dir)
+plot.PermitCountsHistAnimation(sf_buildings_ces, figure_dir)
 plot.PermitVintageYearECDF(sf_buildings_ces, sector, figure_dir)
 plot.ExistingPanelRatingsBar(sf_buildings_ces, sector, figure_dir)
 plot.ExistingPanelRatingsChangeCountsBar(panel_stats_ces_geo, sector, figure_dir)
 plot.ExistingPanelRatingsChangeAmpsBox(panel_stats_ces_geo, sector, figure_dir)
 plot.ExistingPanelRatingsChangeAmpsScatter(panel_stats_ces_geo, sector, figure_dir)
 plot.ExistingPanelRatingsChangeAmpsHist(panel_stats_ces_geo, sector, figure_dir)
-plot.ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
-plot.ExistingPanelRatingsHist(sf_buildings_ces, ces4, ladwp, figure_dir)
-plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, figure_dir)
+#plot.ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
+plot.ExistingPanelRatingsHist(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
+plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
 
 #%% Print Diagnostics
 
 utils.AsBuiltPanelRatingsDiagnostics(sf_buildings_ces, sector)
 utils.PanelUpgradeDiagnostics(sf_buildings_ces)
-utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces)
+utils.ExistingPanelRatingsDiagnostics(sf_buildings_ces, sector)
 
 #%% Process and Output to File
 
