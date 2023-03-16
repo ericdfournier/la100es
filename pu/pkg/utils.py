@@ -115,7 +115,7 @@ def ChangeStatistics(buildings_ces, ces4):
     as_built_mean.columns = ['mean_panel_size_as_built']
 
     sf_property_count = buildings_ces.groupby('census_tract')['lot_sqft'].agg(['count'])
-    sf_property_count.columns = ['sf_homes_count']
+    sf_property_count.columns = ['properties_count']
 
     existing_mean = buildings_ces.groupby('census_tract')['panel_size_existing'].agg(['mean'])
     existing_mean.columns = ['mean_panel_size_existing']
@@ -125,7 +125,7 @@ def ChangeStatistics(buildings_ces, ces4):
 
     panel_stats = pd.concat([as_built_mean, existing_mean, upgrades_count, sf_property_count], axis = 1)
 
-    panel_stats['upgrade_freq_pct'] = (panel_stats['upgrade_count'] / panel_stats['sf_homes_count']).multiply(100.0)
+    panel_stats['upgrade_freq_pct'] = (panel_stats['upgrade_count'] / panel_stats['properties_count']).multiply(100.0)
 
     panel_stats['upgrade_delta_amps'] = panel_stats['mean_panel_size_existing'] - panel_stats['mean_panel_size_as_built']
     panel_stats['upgrade_delta_pct'] = panel_stats[['mean_panel_size_as_built', 'mean_panel_size_existing']].pct_change(axis = 1).iloc[:,1].multiply(100.0)

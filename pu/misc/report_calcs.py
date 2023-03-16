@@ -53,7 +53,8 @@ dacs_ind = sf_data['dac_status'] == 'DAC'
 non_dacs = sf_data.loc[non_dacs_ind,:]
 dacs = sf_data.loc[dacs_ind,:]
 
-#%% Generate Plot
+#%% Generate SF Plot
+
 bw = 0.75
 
 fig1 = sns.jointplot(data = non_dacs,
@@ -303,3 +304,15 @@ ix = np.isfinite(x)
 iy = np.isfinite(y)
 
 a, b = np.polyfit(x.loc[ix], y.loc[iy], 1)
+
+#%% Compute Permit Stats
+dac = mf_data.loc[mf_data['dac_status'] == 'DAC']
+non_dac = mf_data.loc[mf_data['dac_status'] == 'Non-DAC']
+
+dac['permitted_panel_upgrade'].sum() / dac.shape[0]
+non_dac['permitted_panel_upgrade'].sum() / non_dac.shape[0]
+
+dac['inferred_panel_upgrade'].sum() / dac.shape[0]
+non_dac['inferred_panel_upgrade'].sum() / non_dac.shape[0]
+
+# %%
