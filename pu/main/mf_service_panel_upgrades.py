@@ -17,6 +17,7 @@ sector = 'multi_family'
 #%% Import Data and Context Layers
 
 mf_buildings = io.ImportBuildingPermitData(sector)
+mf_buildings = utils.CoalesceMultiFamily(mf_buildings)
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
 mf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(mf_buildings, ces4))
@@ -57,6 +58,8 @@ plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_di
 
 utils.AsBuiltPanelRatingsDiagnostics(mf_buildings_ces, sector)
 utils.PanelUpgradeDiagnostics(mf_buildings_ces)
+
+#%%
 utils.ExistingPanelRatingsDiagnostics(mf_buildings_ces, sector)
 
 #%% Process and Output to File
