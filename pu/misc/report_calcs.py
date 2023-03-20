@@ -23,6 +23,8 @@ sf_data[['dac_status','building_sqft']].groupby('dac_status').agg(['mean','count
 
 mf_data[['dac_status','building_sqft','units']].groupby('dac_status').agg(['mean','count'])
 
+# %%
+
 #%% Average Vintage Year
 
 sf_data[['dac_status','year_built']].groupby('dac_status').agg(['mean','count'])
@@ -36,6 +38,10 @@ sf_data.groupby(pd.cut(sf_data['year_built'], pd.to_datetime(np.arange(1830, 202
 mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 2022, 10), format = '%Y'))).agg(['count','mean'])['building_sqft'].to_csv('/Users/edf/Desktop/scratch.csv')
 #%%
 mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 2022, 10), format = '%Y'))).agg(['mean'])['units'].to_csv('/Users/edf/Desktop/scratch.csv')
+
+#%%
+
+mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 2022, 10), format = '%Y'))).agg(['mean'])['avg_unit_sqft'].to_csv('/Users/edf/Desktop/scratch2.csv')
 
 #%%
 

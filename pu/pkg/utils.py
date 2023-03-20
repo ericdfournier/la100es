@@ -4,6 +4,32 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 
+#%% Coalesce Multi-Family Records
+
+def CoalesceMultiFamily(mf_buildings):
+
+    unique_apns = mf_buildings['apn'].unique()
+    buildings = []
+
+    for apn in unique_apns:
+
+        ind = mf_buildings['apn'] == apn
+        sample = mf_buildings.loc[ind,:].copy()
+
+        if sample.shape[0] > 1:
+            building = sample.iloc[0].copy()
+            descriptions = sample.loc[:,'permit_description'].copy()
+            description = descriptions.str.cat(sep='; ')
+            building.loc['permit_description'] = description
+            buildings.append(building)
+        else:
+            building = sample.copy()
+            buildings.append(building)
+
+    output = pd.concat(buildings, axis = 0)
+
+    return output
+
 #%% Function Merge Parcels with CES Data
 
 def MergeCES(buildings, ces4):
@@ -147,8 +173,8 @@ def PanelUpgradeDiagnostics(buildings_ces):
     '''Function to print diagnostic information about the number
     and location of permitted and inferred panel upgrades'''
 
-    dac_ind = buildings_ces['dac_status'] == 'DAC'
-    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
+    dac_ind = (buildings_ces['dac_status'] == 'DAC') & ~(buildings_ces['panel_size_existing'].isna())
+    non_dac_ind = (buildings_ces['dac_status'] == 'Non-DAC') & ~(buildings_ces['panel_size_existing'].isna())
 
     dac_sample = buildings_ces.loc[dac_ind,:]
     non_dac_sample = buildings_ces.loc[non_dac_ind,:]
@@ -197,8 +223,8 @@ def ExistingPanelRatingsDiagnostics(buildings_ces, sector):
     '''Function to print diagnostic information about the rated capacity of
     existing panels'''
 
-    dac_ind = buildings_ces['dac_status'] == 'DAC'
-    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
+    dac_ind = (buildings_ces['dac_status'] == 'DAC') & ~(buildings_ces['panel_size_existing'].isna())
+    non_dac_ind = (buildings_ces['dac_status'] == 'Non-DAC') & ~(buildings_ces['panel_size_existing'].isna())
 
     dac_sample = buildings_ces.loc[dac_ind,:]
     non_dac_sample = buildings_ces.loc[non_dac_ind,:]

@@ -58,8 +58,6 @@ plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_di
 
 utils.AsBuiltPanelRatingsDiagnostics(mf_buildings_ces, sector)
 utils.PanelUpgradeDiagnostics(mf_buildings_ces)
-
-#%%
 utils.ExistingPanelRatingsDiagnostics(mf_buildings_ces, sector)
 
 #%% Process and Output to File
