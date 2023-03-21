@@ -13,6 +13,7 @@ sf_data = pd.read_pickle(sf_data_dir + 'la100es_sf_electricity_service_panel_cap
 #%% SF Average Size
 
 sf_data[['dac_status','building_sqft']].groupby('dac_status').agg(['mean','count'])
+
 #%% Average Vintage Year
 
 sf_data[['dac_status','year_built']].groupby('dac_status').agg(['mean','count'])
@@ -117,10 +118,10 @@ non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] = out
 deficient_ind = non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] > non_dacs.loc[non_upgrade_ind, 'panel_size_existing']
 upgrade_ratio = deficient_ind.sum() / non_dacs.shape[0]
 
-#%% Compute SF Permit Stats
+#%% Compute MF Permit Stats
 
-dac = mf_data.loc[mf_data['dac_status'] == 'DAC']
-non_dac = mf_data.loc[mf_data['dac_status'] == 'Non-DAC']
+dac = sf_data.loc[mf_data['dac_status'] == 'DAC']
+non_dac = sf_data.loc[mf_data['dac_status'] == 'Non-DAC']
 
 dac['permitted_panel_upgrade'].sum() / dac.shape[0]
 non_dac['permitted_panel_upgrade'].sum() / non_dac.shape[0]

@@ -957,14 +957,14 @@ def AreaNormalizedComparisonKDE(buildings_ces, sector, figure_dir):
 
         # MF plot data
 
-        mf_data['avg_unit_sqft_log10'] = np.log10(mf_data['avg_unit_sqft'])
-        mf_data['existing_amps_per_sqft_log10'] = np.log10(mf_data['panel_size_existing'] / mf_data['avg_unit_sqft'])
+        buildings_ces['avg_unit_sqft_log10'] = np.log10(buildings_ces['avg_unit_sqft'])
+        buildings_ces['existing_amps_per_sqft_log10'] = np.log10(buildings_ces['panel_size_existing'] / buildings_ces['avg_unit_sqft'])
 
-        non_dacs_ind = mf_data['dac_status'] == 'Non-DAC'
-        dacs_ind = mf_data['dac_status'] == 'DAC'
+        non_dacs_ind = buildings_ces['dac_status'] == 'Non-DAC'
+        dacs_ind = buildings_ces['dac_status'] == 'DAC'
 
-        non_dacs = mf_data.loc[non_dacs_ind,:]
-        dacs = mf_data.loc[dacs_ind,:]
+        non_dacs = buildings_ces.loc[non_dacs_ind,:]
+        dacs = buildings_ces.loc[dacs_ind,:]
 
         # Generate MF Plots
 
@@ -1032,7 +1032,6 @@ def AreaNormalizedComparisonKDE(buildings_ces, sector, figure_dir):
         fig2.ax_marg_y.set_yticklabels(ytick_labels)
         fig2.ax_joint.set_ylabel('Rated Panel Capacity\n [$Amps / ft^2$]')
 
-        figure_dir = '/Users/edf/repos/la100es-panel-upgrades/figs/sf/'
         fig1.savefig(figure_dir + 'ladwp_multi_family_non_dac_permitted_upgrade_amps_per_sqft_jointplot.png', bbox_inches = 'tight', dpi = 500)
         fig2.savefig(figure_dir + 'ladwp_multi_family_dac_permitted_upgrade_amps_per_sqft_jointplot.png', bbox_inches = 'tight', dpi = 500)
 

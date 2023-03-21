@@ -50,6 +50,7 @@ plot.ExistingPanelRatingsChangeAmpsHist(panel_stats_ces_geo, sector, figure_dir)
 #plot.ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
 plot.ExistingPanelRatingsHist(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
+plot.AreaNormalizedComparisonKDE(sf_building_ces, sector, figure_dir)
 
 #%% Print Diagnostics
 
