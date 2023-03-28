@@ -10,20 +10,20 @@ import os
 def ImportBuildingPermitData(sector):
     '''Function to import pre-processed single family building
     permit data from local postgres database'''
-    
+
     # Extract Database Connection Parameters from Environment
-    host = os.getenv('PG_HOST')
-    user = os.getenv('PG_USER')
-    password = os.getenv('PG_PASS')
-    port = os.getenv('PG_PORT')
-    db = os.getenv('PG_DB')
+    host = os.getenv('PGHOST')
+    user = os.getenv('PGUSER')
+    password = os.getenv('PGPASS')
+    port = os.getenv('PGPORT')
+    db = os.getenv('PGDATABASE')
 
     # Establish DB Connection
     db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db
     db_con = sql.create_engine(db_con_string)
 
     if sector == 'single_family':
-        
+
         # Read Input Table from DB
         buildings_sql = '''SELECT    "ztrax_rowid",
                                     "apn",
@@ -125,15 +125,15 @@ def ImportBuildingPermitData(sector):
 #%% Read Census Tract Level DAC Data
 
 def ImportCalEnviroScreenData():
-    '''Function to import cal-enviro-screen census tract level 
+    '''Function to import cal-enviro-screen census tract level
     geospatial data from local postgres database'''
 
     # Extract Database Connection Parameters from Environment
-    host = os.getenv('PG_HOST')
-    user = os.getenv('PG_USER')
-    password = os.getenv('PG_PASS')
-    port = os.getenv('PG_PORT')
-    db = os.getenv('PG_DB')
+    host = os.getenv('PGHOST')
+    user = os.getenv('PGUSER')
+    password = os.getenv('PGPASS')
+    port = os.getenv('PGPORT')
+    db = os.getenv('PGDATABASE')
 
     # Establish DB Connection
     db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db
@@ -144,7 +144,7 @@ def ImportCalEnviroScreenData():
     ces4 = gpd.read_postgis(ces4_sql, db_con, geom_col = 'geom')
     cols = [x.lower() for x in ces4.columns]
     ces4.columns = cols
-    
+
     return ces4
 
 #%% Import SB-535 DAC Data
@@ -154,11 +154,11 @@ def ImportSB535Data():
     data from local postgres database'''
 
     # Extract Database Connection Parameters from Environment
-    host = os.getenv('PG_HOST')
-    user = os.getenv('PG_USER')
-    password = os.getenv('PG_PASS')
-    port = os.getenv('PG_PORT')
-    db = os.getenv('PG_DB')
+    host = os.getenv('PGHOST')
+    user = os.getenv('PGUSER')
+    password = os.getenv('PGPASS')
+    port = os.getenv('PGPORT')
+    db = os.getenv('PGDATABASE')
 
     # Establish DB Connection
     db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db
@@ -169,21 +169,21 @@ def ImportSB535Data():
     sb535 = gpd.read_postgis(sb535_sql, db_con, geom_col = 'geom')
     cols = [x.lower() for x in sb535.columns]
     sb535.columns = cols
-    
+
     return sb535
 
-#%% Read LADWP Boundary 
+#%% Read LADWP Boundary
 
 def ImportLadwpServiceTerritoryData():
-    '''Function to import ladwp utility service territory 
+    '''Function to import ladwp utility service territory
     geospatial data from local postgres database'''
 
     # Extract Database Connection Parameters from Environment
-    host = os.getenv('PG_HOST')
-    user = os.getenv('PG_USER')
-    password = os.getenv('PG_PASS')
-    port = os.getenv('PG_PORT')
-    db = os.getenv('PG_DB')
+    host = os.getenv('PGHOST')
+    user = os.getenv('PGUSER')
+    password = os.getenv('PGPASS')
+    port = os.getenv('PGPORT')
+    db = os.getenv('PGDATABASE')
 
     # Establish DB Connection
     db_con_string = 'postgresql://' + user + '@' + host + ':' + port + '/' + db

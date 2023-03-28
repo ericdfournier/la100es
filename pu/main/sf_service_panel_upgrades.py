@@ -17,6 +17,7 @@ sector = 'single_family'
 #%% Import SF Data and Context Layers
 
 sf_buildings = io.ImportBuildingPermitData(sector)
+sf_buildings = utils.CoalesceRecords(sf_buildings)
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
 sf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(sf_buildings, ces4))
@@ -37,6 +38,7 @@ panel_stats_ces_geo = utils.ChangeStatistics(sf_buildings_ces, ces4)
 plot.CountsMap(sf_buildings, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsMap(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.AsBuiltPanelRatingsHist(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
+plot.JointDistributionPlot(sf_buildings_ces, sector, figure_dir)
 plot.AsBuiltPanelRatingsBar(sf_buildings_ces, sector, figure_dir)
 plot.PermitTimeSeries(sf_buildings_ces, sector, figure_dir)
 plot.PermitCountsMap(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
@@ -50,7 +52,7 @@ plot.ExistingPanelRatingsChangeAmpsHist(panel_stats_ces_geo, sector, figure_dir)
 #plot.ExistingPanelRatingsChangePctMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
 plot.ExistingPanelRatingsHist(sf_buildings_ces, ces4, ladwp, sector, figure_dir)
 plot.ExistingPanelRatingsMap(panel_stats_ces_geo, ces4, ladwp, sector, figure_dir)
-plot.AreaNormalizedComparisonKDE(sf_building_ces, sector, figure_dir)
+plot.AreaNormalizedComparisonKDE(sf_buildings_ces, sector, figure_dir)
 
 #%% Print Diagnostics
 

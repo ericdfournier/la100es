@@ -3,32 +3,36 @@
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+from tqdm import tqdm
 
-#%% Coalesce Multi-Family Records
+#%% Coalesce Records
 
-def CoalesceMultiFamily(mf_buildings):
+def CoalesceRecords(buildings):
 
-    unique_apns = mf_buildings['apn'].unique()
-    buildings = []
+    unique_ind = ~buildings['apn'].duplicated()
+    unique_buildings = buildings.loc[unique_ind,:].copy()
 
-    for apn in unique_apns:
+    not_unique_ind = ~unique_ind
+    not_unique_buildings = buildings.loc[not_unique_ind,:].copy()
+    not_unique_apns = not_unique_buildings['apn'].unique()
 
-        ind = mf_buildings['apn'] == apn
-        sample = mf_buildings.loc[ind,:].copy()
+    output = []
 
-        if sample.shape[0] > 1:
-            building = sample.iloc[0].copy()
-            descriptions = sample.loc[:,'permit_description'].copy()
-            description = descriptions.str.cat(sep='; ')
-            building.loc['permit_description'] = description
-            buildings.append(building)
-        else:
-            building = sample.copy()
-            buildings.append(building)
+    for i in tqdm(range(len(not_unique_apns))):
+        apn = not_unique_apns[i]
+        ind = not_unique_buildings['apn'] == apn
+        sample = not_unique_buildings.loc[ind,:].copy()
+        building = sample.iloc[0].copy()
+        descriptions = sample.loc[:,'permit_description'].copy()
+        description = descriptions.str.cat(sep='; ')
+        building.loc['permit_description'] = description
+        output.append(building)
 
-    output = pd.concat(buildings, axis = 0)
+    output = pd.concat(output, axis = 0)
+    final = pd.concat([unique_buildings, output], axis = 0, ignore_index = True)
 
-    return output
+    return final
+
 
 #%% Function Merge Parcels with CES Data
 
@@ -236,21 +240,22 @@ def ExistingPanelRatingsDiagnostics(buildings_ces, sector):
 
         insufficient = [30.0, 40.0, 60.0]
         uncertain = [100.0, 125.0, 150.0]
-        sufficient = [200.0, 225.0, 300.0, 400.0, 600.0, 800.0, 1000.0, 1200.0]
+        sufficient = [200.0, 225.0, 300.0, 400.0, 600.0, 800.0, 1000.0, 1200.0, 1400.0]
 
         print('DAC Existing Capacity Stats:')
 
-        print('<100 Amps: {:.2f}%'.format(dac_sample_stats[insufficient].sum() / dac_sample.shape[0] * 100))
-        print('>=100 : <200 Amps: {:.2f}%'.format(dac_sample_stats[uncertain].sum() / dac_sample.shape[0] * 100))
-        print('>=200 Amps: {:.2f}%'.format(dac_sample_stats[sufficient].sum() / dac_sample.shape[0] * 100))
+
+        print('<100 Amps: {:.2f}%'.format(dac_sample_stats[dac_sample_stats.index.isin(insufficient)].sum() / dac_sample.shape[0] * 100))
+        print('>=100 : <200 Amps: {:.2f}%'.format(dac_sample_stats[dac_sample_stats.index.isin(uncertain)].sum() / dac_sample.shape[0] * 100))
+        print('>=200 Amps: {:.2f}%'.format(dac_sample_stats[dac_sample_stats.index.isin(sufficient)].sum() / dac_sample.shape[0] * 100))
 
         print('\n')
 
         print('Non-DAC Existing Capacity Stats:')
 
-        print('<100 Amps: {:.2f}%'.format(non_dac_sample_stats[insufficient].sum() / non_dac_sample.shape[0] * 100))
-        print('>=100 : <200 Amps: {:.2f}%'.format(non_dac_sample_stats[uncertain].sum() / non_dac_sample.shape[0] * 100))
-        print('>=200 Amps: {:.2f}%'.format(non_dac_sample_stats[sufficient].sum() / non_dac_sample.shape[0] * 100))
+        print('<100 Amps: {:.2f}%'.format(non_dac_sample_stats[non_dac_sample_stats.index.isin(insufficient)].sum() / non_dac_sample.shape[0] * 100))
+        print('>=100 : <200 Amps: {:.2f}%'.format(non_dac_sample_stats[non_dac_sample_stats.index.isin(uncertain)].sum() / non_dac_sample.shape[0] * 100))
+        print('>=200 Amps: {:.2f}%'.format(non_dac_sample_stats[non_dac_sample_stats.index.isin(sufficient)].sum() / non_dac_sample.shape[0] * 100))
 
         print('\n')
 

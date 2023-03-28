@@ -90,7 +90,7 @@ def dac_fn(a, b, x_hat, z):
 out = dac_fn(a, b, x_hat, z)
 
 dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] = out
-deficient_ind = dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] > dacs.loc[non_upgrade_ind, 'panel_size_existing']
+deficient_ind = (dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade']) < dacs.loc[non_upgrade_ind, 'panel_size_existing']
 upgrade_ratio = deficient_ind.sum() / dacs.shape[0]
 
 #%% Non-DAC Case
@@ -115,7 +115,7 @@ def non_dac_fn(a, b, x_hat, z):
 out = non_dac_fn(a, b, x_hat, z)
 
 non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] = out
-deficient_ind = non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] > non_dacs.loc[non_upgrade_ind, 'panel_size_existing']
+deficient_ind = (non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade']) < non_dacs.loc[non_upgrade_ind, 'panel_size_existing']
 upgrade_ratio = deficient_ind.sum() / non_dacs.shape[0]
 
 #%% Compute MF Permit Stats

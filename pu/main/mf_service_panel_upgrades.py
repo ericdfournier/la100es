@@ -17,7 +17,7 @@ sector = 'multi_family'
 #%% Import Data and Context Layers
 
 mf_buildings = io.ImportBuildingPermitData(sector)
-mf_buildings = utils.CoalesceMultiFamily(mf_buildings)
+mf_buildings = utils.CoalesceRecords(mf_buildings)
 ces4 = io.ImportCalEnviroScreenData()
 ladwp = io.ImportLadwpServiceTerritoryData()
 mf_buildings_ces = utils.AssignDACStatus(utils.MergeCES(mf_buildings, ces4))
