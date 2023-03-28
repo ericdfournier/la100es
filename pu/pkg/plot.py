@@ -234,7 +234,7 @@ def PermitTimeSeries(buildings_ces, sector, figure_dir):
     print('DAC Average Annual Permit Counts: {}'.format(permit_ts.loc[dac_vals,'permit_count'].mean()))
     print('DAC Average Annual Rates of Change: {}'.format(permit_ts.loc[dac_vals,'permit_count'].pct_change().mean()))
     print('\n')
-    print('Non-DAC Average Annual Permit Counts: {}'.format(permit_ts.loc[dac_vals,'permit_count'].mean()))
+    print('Non-DAC Average Annual Permit Counts: {}'.format(permit_ts.loc[non_dac_vals,'permit_count'].mean()))
     print('Non-DAC Average Annual Rates of Change: {}'.format(permit_ts.loc[non_dac_vals,'permit_count'].pct_change().mean()))
 
     # Generate Cumsum of Permits by DAC Status
@@ -250,10 +250,10 @@ def PermitTimeSeries(buildings_ces, sector, figure_dir):
     dac_vals = permit_cs['dac_status'] == 'DAC'
     non_dac_vals = permit_cs['dac_status'] == 'Non-DAC'
 
-    print('DAC Average Annual Permit Counts: {}'.format(permit_cs.loc[dac_vals,'permit_count'].mean()))
+    print('DAC Cumulative Permit Counts: {}'.format(permit_cs.loc[dac_vals,'permit_count'].sum()))
     print('DAC Average Annual Rates of Change: {}'.format(permit_cs.loc[dac_vals,'permit_count'].pct_change().mean()))
     print('\n')
-    print('Non-DAC Average Annual Permit Counts: {}'.format(permit_cs.loc[dac_vals,'permit_count'].mean()))
+    print('Non-DAC Cumulative Permit Counts: {}'.format(permit_cs.loc[non_dac_vals,'permit_count'].mean()))
     print('Non-DAC Average Annual Rates of Change: {}'.format(permit_cs.loc[non_dac_vals,'permit_count'].pct_change().mean()))
 
     # Plot Time Series of Permit Counts and Cumulative Sums
@@ -313,6 +313,38 @@ def PermitTimeSeries(buildings_ces, sector, figure_dir):
     fig.tight_layout()
 
     fig.savefig(figure_dir + 'ladwp_{}_permit_time_series_plot.png'.format(sector), bbox_inches = 'tight', dpi = 300)
+
+    return
+
+# Plot Cumulative Permit Counts
+def PermitCountsBar(buildings_ces, sector, figure_dir):
+
+    upgrade_ind = buildings_ces['panel_related_permit'] == True
+    upgrade_data = buildings_ces.loc[upgrade_ind,:].copy()
+    upgrade_stats = upgrade_data.groupby('dac_status')['apn'].agg('count')
+    upgrade_stats = pd.DataFrame(upgrade_stats).reset_index()
+
+    fig, ax = plt.subplots(1, 1, figsize = (5,5), sharex = True)
+
+    sns.barplot(data = upgrade_stats,
+        y = 'apn',
+        x = 'dac_status',
+        order = ['Non-DAC','DAC'],
+        ax = ax)
+
+    if sector == 'single_family':
+        ylabel = 'Total Cumulative Panel Upgrade Permits'
+    elif sector == 'multi_family':
+        ylabel = 'Total Cumulative Load Center Upgrade Permits'
+
+    ax.grid(True)
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel('DAC Status')
+    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+
+    fig.tight_layout()
+
+    fig.savefig(figure_dir + 'ladwp_{}_cumulative_permit_count_barplot.png'.format(sector), bbox_inches = 'tight', dpi = 300)
 
     return
 

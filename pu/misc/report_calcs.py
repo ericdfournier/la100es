@@ -20,7 +20,7 @@ sf_data[['dac_status','year_built']].groupby('dac_status').agg(['mean','count'])
 
 #%% SF Bin Ranged Averages
 
-sf_data.groupby(pd.cut(sf_data['year_built'], pd.to_datetime(np.arange(1850, 2022, 10), format = '%Y'))).agg(['count','mean'])['building_sqft'].to_csv('/Users/edf/Desktop/scratch1.csv')
+sf_data.groupby(pd.cut(sf_data['year_built'], pd.to_datetime(np.arange(1830, 2022, 10), format = '%Y'))).agg(['count','mean'])['building_sqft'].to_csv('/Users/edf/Desktop/scratch1.csv')
 
 #%% SF Counts
 
