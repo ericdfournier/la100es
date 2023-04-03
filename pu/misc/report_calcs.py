@@ -22,6 +22,10 @@ sf_data[['dac_status','year_built']].groupby('dac_status').agg(['mean','count'])
 
 sf_data.groupby(pd.cut(sf_data['year_built'], pd.to_datetime(np.arange(1830, 2022, 10), format = '%Y'))).agg(['count','mean'])['building_sqft'].to_csv('/Users/edf/Desktop/scratch1.csv')
 
+#%% Counts by Panel Size Rating
+
+sf_data.groupby(['panel_size_existing', 'dac_status'])['apn'].agg('count').unstack().to_csv('/Users/edf/Desktop/scratch5.csv')
+
 #%% SF Counts
 
 sf_data.groupby('dac_status')['permitted_panel_upgrade'].agg('sum') / sf_data.groupby('dac_status')['apn'].agg('count')
@@ -90,7 +94,7 @@ def dac_fn(a, b, x_hat, z):
 out = dac_fn(a, b, x_hat, z)
 
 dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] = out
-deficient_ind = (dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade']) < dacs.loc[non_upgrade_ind, 'panel_size_existing']
+deficient_ind = (0.75 * dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade']) > dacs.loc[non_upgrade_ind, 'panel_size_existing']
 upgrade_ratio = deficient_ind.sum() / dacs.shape[0]
 
 #%% Non-DAC Case
@@ -115,7 +119,7 @@ def non_dac_fn(a, b, x_hat, z):
 out = non_dac_fn(a, b, x_hat, z)
 
 non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade'] = out
-deficient_ind = (non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade']) < non_dacs.loc[non_upgrade_ind, 'panel_size_existing']
+deficient_ind = (0.75 * non_dacs.loc[non_upgrade_ind,'panel_size_predicted_future_upgrade']) > non_dacs.loc[non_upgrade_ind, 'panel_size_existing']
 upgrade_ratio = deficient_ind.sum() / non_dacs.shape[0]
 
 #%% Compute MF Permit Stats
@@ -179,6 +183,17 @@ a, b = np.polyfit(x.loc[ix], y.loc[iy], 1)
 #%% Compute MF Permit Stats
 dac = mf_data.loc[mf_data['dac_status'] == 'DAC']
 non_dac = mf_data.loc[mf_data['dac_status'] == 'Non-DAC']
+
+dac['permitted_panel_upgrade'].sum() / dac.shape[0]
+non_dac['permitted_panel_upgrade'].sum() / non_dac.shape[0]
+
+dac['inferred_panel_upgrade'].sum() / dac.shape[0]
+non_dac['inferred_panel_upgrade'].sum() / non_dac.shape[0]
+
+#%% Compute SF Permit Stats
+
+dac = sf_data.loc[sf_data['dac_status'] == 'DAC']
+non_dac = sf_data.loc[sf_data['dac_status'] == 'Non-DAC']
 
 dac['permitted_panel_upgrade'].sum() / dac.shape[0]
 non_dac['permitted_panel_upgrade'].sum() / non_dac.shape[0]
