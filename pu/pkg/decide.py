@@ -3,6 +3,7 @@
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+import pickle
 from itertools import product
 from statsmodels.distributions.empirical_distribution import ECDF
 
@@ -280,55 +281,70 @@ def InferExistingFromModel(buildings_ces, sector):
     the empirical ECDF which relates the age of the home to the probability
     of permitted work by DAC status.'''
 
-    nan_ind = ~buildings_ces['year_built'].isna()
-    dac_ind = buildings_ces['dac_status'] == 'DAC'
-    dac_permit_sum = dac_ind.sum()
-    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
-    non_dac_permit_sum = non_dac_ind.sum()
+    # Filter Properties with no construction vintage data
+    nan_ind = ~buildings_ces.loc[:,'year_built'].isna()
 
-    dac_ages = pd.DataFrame(2022-buildings_ces.loc[(nan_ind & dac_ind),'year_built'].dt.year)
-    non_dac_ages = pd.DataFrame(2022-buildings_ces.loc[(nan_ind & non_dac_ind),'year_built'].dt.year)
+    # Filter DAC and Non-DAC Properties
+    dac_ind = buildings_ces.loc[:,'dac_status'] == 'DAC'
+    non_dac_ind = buildings_ces.loc[:,'dac_status'] == 'Non-DAC'
 
+    # Filter Properties with Panel Upgrade Permits
+    permit_ind = buildings_ces.loc[:,'permitted_panel_upgrade'] == True
+
+    # Extract Permit Issue Year for Properties with Permitted Upgrades
+    permit_issue_year = buildings_ces.loc[:,'permit_issue_date'].dt.year
+
+    # Extract Construction Vintage Year for Properties with Permitted Upgrades
+    construction_year = buildings_ces.loc[:,'year_built'].dt.year
+
+    # Compute the Current Age of the Extracted Properties
+    current_age = 2022 - construction_year
+
+    # Compute the Age of the Properties in the Year their Permits were Issued
+    permit_age = current_age - (2022 - permit_issue_year)
+
+    # Generate ECDFS Based Upon the Age of Properties at the time Their Permits Were Issued
+    dac_ecdf = ECDF(permit_age.loc[nan_ind & dac_ind & permit_ind])
+    non_dac_ecdf = ECDF(permit_age.loc[nan_ind & non_dac_ind & permit_ind])
+
+    # Output DAC ECDF to File for LBNL
+    with open('/Users/edf/repos/la100es-panel-upgrades/data/outputs/ecdfs/{}_dac_ecdf.pkl'.format(sector), 'wb') as handle:
+        pickle.dump(dac_ecdf, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # Output DAC ECDF to File for LBNL
+    with open('/Users/edf/repos/la100es-panel-upgrades/data/outputs/ecdfs/{}_non_dac_ecdf.pkl'.format(sector), 'wb') as handle:
+        pickle.dump(non_dac_ecdf, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # Seed the Random Number Generator to Create Deterministic Outputs
     rs = 12345678
     np.random.seed(rs)
 
-    dac_ecdf = ECDF(dac_ages['year_built'])
+    # Extract the Current Ages of the DAC Inference Group of Non-Permitted Properties
+    dac_x = current_age.loc[(nan_ind & dac_ind & ~permit_ind)]
 
-    dac_odds_ratio = non_dac_permit_sum / dac_permit_sum
-    start_year = np.min(buildings_ces['permit_issue_date'].dt.year)
-
-    dac_ind = (~buildings_ces['year_built'].isna()) & (buildings_ces['dac_status'] == 'DAC') & (buildings_ces['permitted_panel_upgrade'] == False)
-    dac_x = pd.DataFrame(start_year - buildings_ces.loc[dac_ind,'year_built'].dt.year)
-    dac_neg_ind = dac_x['year_built'] < 0
-    dac_x.loc[dac_neg_ind,'year_built'] = 0
-    dac_y = dac_ecdf(dac_x) / dac_odds_ratio
+    # Output the Probability of an Upgrade Based upon the DAC-ECDF
+    dac_y = dac_ecdf(dac_x)
     dac_upgrade_list = []
 
-    for pr in dac_y[:,0]:
-        if pr < 0.0:
-            pr = 0.
-        elif pr > 1.0:
-            pr = 1.0
+    # Infer Upgrade based Upon Pseudo-Random Choice Using the Output Probability
+    for pr in dac_y:
         dac_upgrade_list.append(np.random.choice(np.array([False, True]), size = 1, p = [1.0-pr, pr])[0])
 
+    dac_x = dac_x.to_frame()
     dac_x['previous_upgrade'] = dac_upgrade_list
 
-    non_dac_ecdf = ECDF(non_dac_ages['year_built'])
+    # Extract the Current Ages of the non-DAC Inference Group of Non-Permitted Properties
+    non_dac_x = current_age.loc[(nan_ind & non_dac_ind & ~permit_ind)]
 
-    non_dac_ind = (~buildings_ces['year_built'].isna()) & (buildings_ces['dac_status'] == 'Non-DAC') & (buildings_ces['permitted_panel_upgrade'] == False)
-    non_dac_x = pd.DataFrame(start_year - buildings_ces.loc[non_dac_ind,'year_built'].dt.year)
-    non_dac_neg_ind = non_dac_x['year_built'] < 0
-    non_dac_x.loc[non_dac_neg_ind,'year_built'] = 0
+    # Output the Probability of an Upgrade Based upon the non-DAC-ECDF
     non_dac_y = non_dac_ecdf(non_dac_x)
     non_dac_upgrade_list = []
 
-    for pr in non_dac_y[:,0]:
-        if pr < 0.0:
-            pr = 0
-        elif pr > 1.0:
-            pr = 1.0
+    # Infer Upgrade based Upon Pseudo-Random Choice Using the Output Probability
+    for pr in non_dac_y:
         non_dac_upgrade_list.append(np.random.choice(np.array([False, True]), size = 1, p = [1.0-pr, pr])[0])
 
+    non_dac_x = non_dac_x.to_frame()
     non_dac_x['previous_upgrade'] = non_dac_upgrade_list
 
     # Loop Through and Assess Upgrades for DAC and Non-DAC cohorts
@@ -365,30 +381,30 @@ def InferExistingFromModel(buildings_ces, sector):
     # DAC Loop
     buildings_ces['inferred_panel_upgrade'] = False
 
-    for apn, row in dac_x.iterrows():
+    for ind, row in dac_x.iterrows():
 
-        as_built = buildings_ces.loc[apn,'panel_size_as_built']
+        as_built = buildings_ces.loc[ind,'panel_size_as_built']
         existing = as_built
 
-        if (row['previous_upgrade'] == True) & (buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
+        if (row['previous_upgrade'] == True) & (buildings_ces.loc[ind, 'permitted_panel_upgrade'] == False):
             level = upgrade_scale.index(as_built)
             existing = upgrade_scale[level + 1]
-            buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
+            buildings_ces.loc[ind,'inferred_panel_upgrade'] = True
 
-        buildings_ces.loc[apn,'panel_size_existing'] = existing
+        buildings_ces.loc[ind,'panel_size_existing'] = existing
 
     # Non-DAC Loop
-    for apn, row in non_dac_x.iterrows():
+    for ind, row in non_dac_x.iterrows():
 
-        as_built = buildings_ces.loc[apn,'panel_size_as_built']
+        as_built = buildings_ces.loc[ind,'panel_size_as_built']
         existing = as_built
 
-        if (row['previous_upgrade'] == True) & (buildings_ces.loc[apn, 'permitted_panel_upgrade'] == False):
+        if (row['previous_upgrade'] == True) & (buildings_ces.loc[ind, 'permitted_panel_upgrade'] == False):
             level = upgrade_scale.index(as_built)
             existing = upgrade_scale[level + 1]
-            buildings_ces.loc[apn,'inferred_panel_upgrade'] = True
+            buildings_ces.loc[ind,'inferred_panel_upgrade'] = True
 
-        buildings_ces.loc[apn,'panel_size_existing'] = existing
+        buildings_ces.loc[ind,'panel_size_existing'] = existing
 
     buildings_ces['panel_upgrade'] = buildings_ces.loc[:,['permitted_panel_upgrade','inferred_panel_upgrade']].any(axis = 1)
 
