@@ -291,19 +291,19 @@ def InferExistingFromModel(buildings_ces, sector):
     # Filter Properties with Panel Upgrade Permits
     permit_ind = buildings_ces.loc[:,'permitted_panel_upgrade'] == True
 
-    # Extract Permit Issue Year for Properties with Permitted Upgrades
+    # Extract Permit Issue Year
     permit_issue_year = buildings_ces.loc[:,'permit_issue_date'].dt.year
 
-    # Extract Construction Vintage Year for Properties with Permitted Upgrades
+    # Extract Construction Vintage Year
     construction_year = buildings_ces.loc[:,'year_built'].dt.year
 
-    # Compute the Current Age of the Extracted Properties
+    # Compute the Current Age of the Properties
     current_age = 2022 - construction_year
 
-    # Compute the Age of the Properties in the Year their Permits were Issued
+    # Compute the Age of the Properties in the Year in Which Permits were Issued (if any)
     permit_age = current_age - (2022 - permit_issue_year)
 
-    # Generate ECDFS Based Upon the Age of Properties at the time Their Permits Were Issued
+    # Generate ECDFS Based Upon the Age of Properties at the time Their Permits Were Issued for Permitted Properties
     dac_ecdf = ECDF(permit_age.loc[nan_ind & dac_ind & permit_ind])
     non_dac_ecdf = ECDF(permit_age.loc[nan_ind & non_dac_ind & permit_ind])
 
@@ -311,7 +311,7 @@ def InferExistingFromModel(buildings_ces, sector):
     with open('/Users/edf/repos/la100es-panel-upgrades/data/ecdfs/{}_dac_ecdf.pkl'.format(sector), 'wb') as handle:
         pickle.dump(dac_ecdf, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    # Output DAC ECDF to File for LBNL
+    # Output non-DAC ECDF to File for LBNL
     with open('/Users/edf/repos/la100es-panel-upgrades/data/ecdfs/{}_non_dac_ecdf.pkl'.format(sector), 'wb') as handle:
         pickle.dump(non_dac_ecdf, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
