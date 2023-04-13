@@ -308,11 +308,11 @@ def InferExistingFromModel(buildings_ces, sector):
     non_dac_ecdf = ECDF(permit_age.loc[nan_ind & non_dac_ind & permit_ind])
 
     # Output DAC ECDF to File for LBNL
-    with open('/Users/edf/repos/la100es-panel-upgrades/data/outputs/ecdfs/{}_dac_ecdf.pkl'.format(sector), 'wb') as handle:
+    with open('/Users/edf/repos/la100es-panel-upgrades/data/ecdfs/{}_dac_ecdf.pkl'.format(sector), 'wb') as handle:
         pickle.dump(dac_ecdf, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Output DAC ECDF to File for LBNL
-    with open('/Users/edf/repos/la100es-panel-upgrades/data/outputs/ecdfs/{}_non_dac_ecdf.pkl'.format(sector), 'wb') as handle:
+    with open('/Users/edf/repos/la100es-panel-upgrades/data/ecdfs/{}_non_dac_ecdf.pkl'.format(sector), 'wb') as handle:
         pickle.dump(non_dac_ecdf, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Seed the Random Number Generator to Create Deterministic Outputs

@@ -467,29 +467,29 @@ def PermitVintageYearECDF(buildings_ces, sector, figure_dir):
     '''Function to plot the empirical cdf's for permitted panel upgrade
     by the vintage year of the property and DAC status'''
 
-    nan_ind = ~buildings_ces['year_built'].isna()
-    dac_ind = buildings_ces['dac_status'] == 'DAC'
-    dac_permit_sum = dac_ind.sum()
-    non_dac_ind = buildings_ces['dac_status'] == 'Non-DAC'
-    non_dac_permit_sum = non_dac_ind.sum()
-
-    dac_ages = pd.DataFrame(2022-buildings_ces.loc[(nan_ind & dac_ind),'year_built'].dt.year)
-    non_dac_ages = pd.DataFrame(2022-buildings_ces.loc[(nan_ind & non_dac_ind),'year_built'].dt.year)
+    nan_ind = ~buildings_ces.loc[:,'year_built'].isna()
+    dac_ind = buildings_ces.loc[:,'dac_status'] == 'DAC'
+    non_dac_ind = buildings_ces.loc[:,'dac_status'] == 'Non-DAC'
+    permit_ind = buildings_ces.loc[:,'permitted_panel_upgrade'] == True
+    permit_issue_year = buildings_ces.loc[:,'permit_issue_date'].dt.year
+    construction_year = buildings_ces.loc[:,'year_built'].dt.year
+    current_age = 2022 - construction_year
+    permit_age = current_age - (2022 - permit_issue_year)
 
     fig, ax = plt.subplots(1,1,figsize = (8,5))
 
-    sns.ecdfplot(data=dac_ages, x='year_built', ax=ax, color = 'tab:orange')
-    sns.ecdfplot(data=non_dac_ages, x='year_built', ax=ax, color = 'tab:blue')
+    sns.ecdfplot(data=permit_age.loc[nan_ind & dac_ind & permit_ind], ax=ax, color = 'tab:orange')
+    sns.ecdfplot(data=permit_age.loc[nan_ind & non_dac_ind & permit_ind], ax=ax, color = 'tab:blue')
 
     if sector == 'single_family':
         ylabel = 'Proportion of Properties\nwith Permitted Panel Upgrades'
     elif sector == 'multi_family':
-        ylabel = 'Proportion of Units\nwith Permitted Panel Upgrades'
+        ylabel = 'Proportion of Properties\nwith Permitted Panel Upgrades'
 
     ax.set_xlabel('Age of Property')
     ax.set_ylabel(ylabel)
     ax.autoscale(enable=True, axis='x', tight = True)
-    range_max = dac_ages['year_built'].max()
+    range_max = permit_age.max()
     interval = 10
     x_ticks = np.arange(0.0, range_max, interval)
     y_ticks = np.arange(0.0, 1.1, 0.1)
