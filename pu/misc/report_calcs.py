@@ -46,6 +46,7 @@ mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 202
 mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 2022, 10), format = '%Y'))).agg(['mean'])['units'].to_csv('/Users/edf/Desktop/scratch2.csv')
 mf_data.groupby(pd.cut(mf_data['year_built'], pd.to_datetime(np.arange(1850, 2022, 10), format = '%Y'))).agg(['mean'])['avg_unit_sqft'].to_csv('/Users/edf/Desktop/scratch3.csv')
 mf_data.groupby(['dac_status', 'panel_size_existing'])['panel_size_existing'].agg('count').to_csv('/Users/edf/Desktop/scratch4.csv')
+mf_data.groupby(['dac_status', 'panel_size_existing'])['units'].agg('sum').to_csv('/Users/edf/Desktop/scratch5.csv')
 
 # %% SF Stats Data
 
