@@ -89,7 +89,7 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
                         125.,       # ['vintage_1883_1950', 'size_4k_5k'],
                         150.,       # ['vintage_1883_1950', 'size_5k_8k'],
                         200.,       # ['vintage_1883_1950', 'size_8k_10k']
-                        300.,       # ['vintage_1883_1950', 'size_10k_20k'],
+                        320.,       # ['vintage_1883_1950', 'size_10k_20k'],
                         400.,       # ['vintage_1883_1950', 'size_20k_plus'],
                         30.,        # ['vintage_1950_1978', 'size_minus_1k'],
                         60.,        # ['vintage_1950_1978', 'size_1k_2k'],
@@ -97,7 +97,7 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
                         125.,       # ['vintage_1950_1978', 'size_3k_4k'],
                         150.,       # ['vintage_1950_1978', 'size_4k_5k'],
                         200.,       # ['vintage_1950_1978', 'size_5k_8k'],
-                        300.,       # ['vintage_1950_1978', 'size_8k_10k']
+                        320.,       # ['vintage_1950_1978', 'size_8k_10k']
                         400.,       # ['vintage_1950_1978', 'size_10k_20k'],
                         600.,       # ['vintage_1950_1978', 'size_20k_plus'],
                         100.,       # ['vintage_1978_2010', 'size_minus_1k'],
@@ -105,14 +105,14 @@ def AssignAsBuiltFromDecisionTree(buildings_ces, sector):
                         150.,       # ['vintage_1978_2010', 'size_2k_3k'],
                         200.,       # ['vintage_1978_2010', 'size_3k_4k'],
                         225.,       # ['vintage_1978_2010', 'size_4k_5k']
-                        300.,       # ['vintage_1978_2010', 'size_5k_8k'],
+                        320.,       # ['vintage_1978_2010', 'size_5k_8k'],
                         400.,       # ['vintage_1978_2010', 'size_8k_10k']
                         600.,       # ['vintage_1978_2010', 'size_10k_20k']
                         800.,       # ['vintage_1978_2010', 'size_20k_plus']
                         150.,       # ['vintage_post_2010', 'size_minus_1k'],
                         200.,       # ['vintage_post_2010', 'size_1k_2k'],
                         225.,       # ['vintage_post_2010', 'size_2k_3k'],
-                        300.,       # ['vintage_post_2010', 'size_3k_4k'],
+                        320.,       # ['vintage_post_2010', 'size_3k_4k'],
                         400.,       # ['vintage_post_2010', 'size_4k_5k']
                         600.,       # ['vintage_post_2010', 'size_5k_8k'],
                         800.,       # ['vintage_post_2010', 'size_8k_10k']
@@ -182,7 +182,7 @@ def AssignExistingFromPermit(buildings_ces, sector):
         pu_150 = (buildings_ces['permit_description'].str.contains(' 150')) | (buildings_ces['permit_description'].str.startswith('150'))
         pu_200 = (buildings_ces['permit_description'].str.contains(' 200')) | (buildings_ces['permit_description'].str.startswith('200'))
         pu_225 = (buildings_ces['permit_description'].str.contains(' 225')) | (buildings_ces['permit_description'].str.startswith('225'))
-        pu_300 = (buildings_ces['permit_description'].str.contains(' 300')) | (buildings_ces['permit_description'].str.startswith('300'))
+        pu_320 = (buildings_ces['permit_description'].str.contains(' 320')) | (buildings_ces['permit_description'].str.startswith('320'))
         pu_400 = (buildings_ces['permit_description'].str.contains(' 400')) | (buildings_ces['permit_description'].str.startswith('400'))
         pu_600 = (buildings_ces['permit_description'].str.contains(' 600')) | (buildings_ces['permit_description'].str.startswith('600'))
 
@@ -191,7 +191,7 @@ def AssignExistingFromPermit(buildings_ces, sector):
         pu_ac = (buildings_ces['permit_description'].str.contains(' ac', case = False)) | (buildings_ces['permit_description'].str.contains(" a/c", case = False))
 
         pu_any = buildings_ces['panel_related_permit'] == True
-        pu_other = pu_any & ~(pu_100 | pu_125 | pu_150 | pu_200 | pu_225 | pu_300 | pu_400 | pu_600)
+        pu_other = pu_any & ~(pu_100 | pu_125 | pu_150 | pu_200 | pu_225 | pu_320 | pu_400 | pu_600)
 
         upgrade_scale = [   0.,
                             30.,
@@ -202,7 +202,7 @@ def AssignExistingFromPermit(buildings_ces, sector):
                             150.,
                             200.,
                             225.,
-                            300.,
+                            320.,
                             400.,
                             600.,
                             800.,
@@ -252,7 +252,7 @@ def AssignExistingFromPermit(buildings_ces, sector):
     pu_other[pu_other.isna()] = False
     proposed = buildings_ces.loc[pu_other, 'panel_size_as_built']
 
-    for p in proposed.iteritems():
+    for p in proposed.items():
         c = None
         if np.isnan(p[1]):
             c = 100.
@@ -361,7 +361,7 @@ def InferExistingFromModel(buildings_ces, sector):
                             150.,
                             200.,
                             225.,
-                            300.,
+                            320.,
                             400.,
                             600.,
                             800.,

@@ -735,7 +735,7 @@ def ExistingPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
     non_dac_sample['year_built_int'] = non_dac_sample['year_built'].dt.year
 
     if sector == 'single_family':
-        yticks = [30,60,100, 125, 150, 200, 225, 300, 400, 600, 800, 1000, 1200]
+        yticks = [30,60,100, 125, 150, 200, 225, 320, 400, 600, 800, 1000, 1200]
         ylim = (0, 1220)
         ylabel = 'Existing Panel Rating \n[Amps]'
         bins = 80

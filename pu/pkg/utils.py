@@ -240,7 +240,7 @@ def ExistingPanelRatingsDiagnostics(buildings_ces, sector):
 
         insufficient = [30.0, 40.0, 60.0]
         uncertain = [100.0, 125.0, 150.0]
-        sufficient = [200.0, 225.0, 300.0, 400.0, 600.0, 800.0, 1000.0, 1200.0, 1400.0]
+        sufficient = [200.0, 225.0, 320.0, 400.0, 600.0, 800.0, 1000.0, 1200.0, 1400.0]
 
         print('DAC Existing Capacity Stats:')
 

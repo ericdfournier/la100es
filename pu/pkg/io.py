@@ -118,7 +118,7 @@ def ImportBuildingPermitData(sector):
     buildings['roll_year'] = pd.to_datetime(buildings['roll_year'], format = '%Y-%m-%d')
     buildings['roll_landbaseyear'] = pd.to_datetime(buildings['roll_landbaseyear'], format = '%Y-%m-%d')
     buildings['roll_impbaseyear'] = pd.to_datetime(buildings['roll_impbaseyear'], format = '%Y-%m-%d')
-    buildings['permit_issue_date'] = pd.to_datetime(buildings['permit_issue_date'], format = '%Y-%m-%d')
+    buildings['permit_issue_date'] = pd.to_datetime(buildings['permit_issue_date'], format = 'mixed')
 
     return buildings
 
