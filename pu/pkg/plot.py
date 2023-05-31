@@ -118,7 +118,7 @@ def AsBuiltPanelRatingsHist(buildings_ces, ces4, ladwp, sector, figure_dir):
 
     if sector == 'single_family':
         ylim = [0, 1220]
-        yticks = [30, 60, 100, 125, 150, 200, 225, 300, 400, 600, 800, 1000, 1200]
+        yticks = [30, 60, 100, 125, 150, 200, 225, 320, 400, 600, 800, 1000, 1200]
         bins = 80
         ylabel = 'As-Built Panel Rating \n[Amps]'
     elif sector == 'multi_family':
