@@ -6,6 +6,7 @@ import pkg.io as io
 import pkg.plot as plot
 import pkg.utils as utils
 import pkg.decide as decide
+import geopandas as gpd
 import datetime
 
 #%% Set Output Figures Directory
@@ -68,4 +69,13 @@ final = utils.SortColumns(mf_buildings_ces, sector)
 ts = str(datetime.datetime.now())
 final.to_pickle(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis.pk')
 final.to_csv(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.csv')
-final.to_json(output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis_'+ ts[:10] + '.geojson')
+
+#%% Output Geospatial Version
+
+final_gdf = gpd.GeoDataFrame(final,
+    geometry=gpd.GeoSeries.from_wkb(final['centroid'], index=None, crs='EPSG:3310'),
+    crs='EPSG:3310')
+final_gdf.drop(columns= ['centroid'], inplace = True)
+
+path = output_dir + 'la100es_mf_electricity_service_panel_capacity_analysis_' + ts[:10] + '.geojson'
+final_gdf.to_file(path, driver = 'GeoJSON', na = 'null')
